@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { NavBar } from "./dashBoard";
-import './App.css';
+import "./App.css";
 import { Footer } from "./homePage";
-import CoachA from './assets/img/a.png';
-import CoachB from './assets/img/b.jpg';
+import CoachA from "./assets/img/a.png";
+import CoachB from "./assets/img/b.jpg";
 
 const initialCoaches = [
   {
@@ -40,8 +40,7 @@ function Coach() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmedSlot, setConfirmedSlot] = useState(null); // Lưu slot vừa xác nhận
 
-  const openModal = (coach) =>
-    setSelected({ coach, symptom: "", slot: null });
+  const openModal = (coach) => setSelected({ coach, symptom: "", slot: null });
 
   const closeModal = () =>
     setSelected({ coach: null, symptom: "", slot: null });
@@ -99,9 +98,11 @@ function Coach() {
                         : ""
                     }`}
                   >
-                    {`${["T2", "T3", "T4", "T5", "T6", "T7", "CN"][Math.floor(i / 2)]} ${
-                      i % 2 === 0 ? "S" : "C"
-                    }`}
+                    {`${
+                      ["T2", "T3", "T4", "T5", "T6", "T7", "CN"][
+                        Math.floor(i / 2)
+                      ]
+                    } ${i % 2 === 0 ? "S" : "C"}`}
                   </div>
                 ))}
               </div>
@@ -115,13 +116,17 @@ function Coach() {
         {selected.coach && (
           <div className="modal-overlay">
             <div className="modal-content">
-              <h3 className="modal-title">Đặt lịch với {selected.coach.name}</h3>
+              <h3 className="modal-title">
+                Đặt lịch với {selected.coach.name}
+              </h3>
               <div className="modal-section">
                 <p className="modal-label">Triệu chứng:</p>
                 <select
                   className="symptom-dropdown"
                   value={selected.symptom}
-                  onChange={(e) => setSelected({ ...selected, symptom: e.target.value })}
+                  onChange={(e) =>
+                    setSelected({ ...selected, symptom: e.target.value })
+                  }
                 >
                   <option value="">--Chọn triệu chứng--</option>
                   {symptoms.map((s, i) => (
@@ -148,9 +153,11 @@ function Coach() {
                       >
                         {booked
                           ? "❌"
-                          : `${["T2", "T3", "T4", "T5", "T6", "T7", "CN"][Math.floor(i / 2)]} ${
-                              i % 2 === 0 ? "S" : "C"
-                            }`}
+                          : `${
+                              ["T2", "T3", "T4", "T5", "T6", "T7", "CN"][
+                                Math.floor(i / 2)
+                              ]
+                            } ${i % 2 === 0 ? "S" : "C"}`}
                       </button>
                     );
                   })}
@@ -178,8 +185,12 @@ function Coach() {
               </h3>
               <p className="confirmation-message">
                 {selected.symptom && selected.slot !== null
-                  ? `Đã đặt với ${selected.coach.name}\nTriệu chứng: ${selected.symptom}\nSlot: ${
-                      ["T2", "T3", "T4", "T5", "T6", "T7", "CN"][Math.floor(selected.slot / 2)]
+                  ? `Đã đặt với ${selected.coach.name}\nTriệu chứng: ${
+                      selected.symptom
+                    }\nSlot: ${
+                      ["T2", "T3", "T4", "T5", "T6", "T7", "CN"][
+                        Math.floor(selected.slot / 2)
+                      ]
                     } ${selected.slot % 2 === 0 ? "Sáng" : "Chiều"}`
                   : "Vui lòng chọn triệu chứng và slot!"}
               </p>
