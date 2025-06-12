@@ -1,19 +1,21 @@
 import { useState } from "react";
 import { NavBar } from "./dashBoard";
 import './App.css';
-import {Footer} from "./homePage";
+import { Footer } from "./homePage";
+import CoachA from './assets/img/a.png'; // Import ảnh
+import CoachB from './assets/img/b.jpg'; // Import ảnh
 
 const sampleCoaches = [
   {
     id: 1,
     name: "Nguyễn Văn A",
-    avatar: "https://via.placeholder.com/100",
+    avatar: CoachA, // Sử dụng biến import
     bookedSlots: [2, 5],
   },
   {
     id: 2,
     name: "Trần Thị B",
-    avatar: "https://via.placeholder.com/100",
+    avatar: CoachB, // Sử dụng biến import
     bookedSlots: [3, 8],
   },
 ];
@@ -32,7 +34,7 @@ function Coach() {
     symptom: "",
     slot: null,
   });
-  const [showConfirmation, setShowConfirmation] = useState(false); // Trạng thái cho pop-up xác nhận
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const openModal = (coach) =>
     setSelected({ coach, symptom: "", slot: null });
@@ -41,16 +43,16 @@ function Coach() {
 
   const confirm = () => {
     if (!selected.symptom || selected.slot === null) {
-      setShowConfirmation(true); // Hiển thị pop-up lỗi
+      setShowConfirmation(true);
       return;
     }
-    setShowConfirmation(true); // Hiển thị pop-up xác nhận
+    setShowConfirmation(true);
   };
 
   const closeConfirmation = () => {
-    setShowConfirmation(false); // Đóng pop-up
+    setShowConfirmation(false);
     if (selected.symptom && selected.slot !== null) {
-      closeModal(); // Đóng modal chính nếu đặt lịch thành công
+      closeModal();
     }
   };
 
@@ -120,11 +122,7 @@ function Coach() {
                         disabled={booked}
                         onClick={() => setSelected({ ...selected, slot: i })}
                         className={`slot-button ${
-                          booked // Sửa lỗi từ booked/Deutsch thành booked
-                            ? "slot-disabled"
-                            : active
-                            ? "slot-active"
-                            : ""
+                          booked ? "slot-disabled" : active ? "slot-active" : ""
                         }`}
                       >
                         {booked

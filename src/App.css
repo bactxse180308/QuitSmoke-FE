@@ -563,3 +563,10 @@ Footer {
 .btn-ok:hover {
   background-color: #16a34a; /* Màu xanh lá đậm hơn khi hover */
 }
+
+.coach-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover; /* Đảm bảo ảnh không bị méo */
+}
