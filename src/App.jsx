@@ -9,7 +9,8 @@ import Ranking from './ranking.jsx';
 import Coach from './coach.jsx';
 import Achievement from './achievement.jsx';
 import ServicePackage from './ServicePackage.jsx';
-import Blog from './Blog.jsx';
+import Blog from './Blog.jsx'; // Đây là trang danh sách
+import ArticleDetail from './ArticleDetail.jsx'; // Đây là trang chi tiết, chúng ta sẽ tạo file nà
 function App() {
 
   return (
@@ -25,7 +26,9 @@ function App() {
         <Route path='achievement' element={<Achievement/>} />
         <Route path='service-package' element={<ServicePackage/>} />
         <Route path='coach' element={<Coach/>} />
-           <Route path='blog' element={<Blog />} />
+        {/* Cấu trúc route cho Blog */}
+          <Route path='blog' element={<Blog />} />
+          <Route path='blog/:slug' element={<ArticleDetail />} /> 
       </Routes>
     </BrowserRouter>
     
