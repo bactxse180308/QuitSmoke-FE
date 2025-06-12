@@ -2,22 +2,28 @@ import { useState } from "react";
 import { NavBar } from "./dashBoard";
 import "./App.css";
 import { Footer } from "./homePage";
-import CoachA from "./assets/img/a.png";
-import CoachB from "./assets/img/b.jpg";
+
 
 const initialCoaches = [
   {
     id: 1,
     name: "Nguyễn Văn A",
     email: "nguyenvana@example.com",
-    avatar: CoachA,
+    avatar: 'https://i.pravatar.cc/150?u=nguyenvana',
     bookedSlots: [2, 5],
   },
   {
     id: 2,
-    name: "Trần Thị B",
+    name: "Trần van B",
     email: "tranthib@example.com",
-    avatar: CoachB,
+    avatar: 'https://i.pravatar.cc/150?u=tranvanB',
+    bookedSlots: [3, 8],
+  },
+  {
+    id: 3,
+    name: "Trần văn c",
+    email: "tranvanc@example.com",
+    avatar: 'https://i.pravatar.cc/150?u=tranvanc',
     bookedSlots: [3, 8],
   },
 ];

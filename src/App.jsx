@@ -9,7 +9,7 @@ import Ranking from './ranking.jsx';
 import Coach from './coach.jsx';
 import Achievement from './achievement.jsx';
 import ServicePackage from './ServicePackage.jsx';
-
+import Blog from './Blog.jsx';
 function App() {
 
   return (
@@ -25,6 +25,7 @@ function App() {
         <Route path='achievement' element={<Achievement/>} />
         <Route path='service-package' element={<ServicePackage/>} />
         <Route path='coach' element={<Coach/>} />
+           <Route path='blog' element={<Blog />} />
       </Routes>
     </BrowserRouter>
     

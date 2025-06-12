@@ -103,12 +103,12 @@ function NavBar() {
       <h3><strong>QuitSmoking</strong></h3>
       <h4 style={navItemStyle('/dashboard')} onClick={() => navigate('/dashboard')}>Tổng quan</h4>
       <h4 style={navItemStyle('/diary')} onClick={() => navigate('/diary')}>Nhật ký</h4>
-      <h4 style={navItemStyle('/missions')} onClick={() => navigate('/missions')}>Nhiệm vụ</h4>
+      <h4 style={navItemStyle('/missions')} onClick={() => navigate('/missions')}>Nhiệm vụ</h4> 
       <h4 style={navItemStyle('/ranking')} onClick={() => navigate('/ranking')}>Bảng xếp hạng</h4>
       <h4 style={navItemStyle('/achievement')} onClick={() => navigate('/achievement')}>Thành tựu</h4>
       <h4 style={navItemStyle('/service-package')} onClick={() => navigate('/service-package')}>Gói dịch vụ</h4>
       <h4 style={navItemStyle('/coach')} onClick={() => navigate('/coach')}>Chuyên gia</h4>
-
+      <h4 style={navItemStyle('/blog')} onClick={() => navigate('/blog')}>bài viết</h4> 
       <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
         <icon.User />
         <h4 style={{ marginLeft: 5 }}>Người dùng</h4>
