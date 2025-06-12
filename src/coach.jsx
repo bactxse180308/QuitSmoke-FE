@@ -2,21 +2,21 @@ import { useState } from "react";
 import { NavBar } from "./dashBoard";
 import './App.css';
 import { Footer } from "./homePage";
-import CoachA from './assets/img/a.png'; // Import ảnh
-import CoachB from './assets/img/b.jpg'; // Import ảnh
+import CoachA from './assets/img/a.png';
+import CoachB from './assets/img/b.jpg';
 
-const sampleCoaches = [
+const initialCoaches = [
   {
     id: 1,
     name: "Nguyễn Văn A",
-    email: "nguyenvana@example.com", // Thêm email
+    email: "nguyenvana@example.com",
     avatar: CoachA,
     bookedSlots: [2, 5],
   },
   {
     id: 2,
     name: "Trần Thị B",
-    email: "tranthib@example.com", // Thêm email
+    email: "tranthib@example.com",
     avatar: CoachB,
     bookedSlots: [3, 8],
   },
@@ -31,15 +31,18 @@ const symptoms = [
 ];
 
 function Coach() {
+  const [coaches, setCoaches] = useState(initialCoaches); // State cho coaches
   const [selected, setSelected] = useState({
     coach: null,
     symptom: "",
     slot: null,
   });
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmedSlot, setConfirmedSlot] = useState(null); // Lưu slot vừa xác nhận
 
   const openModal = (coach) =>
     setSelected({ coach, symptom: "", slot: null });
+
   const closeModal = () =>
     setSelected({ coach: null, symptom: "", slot: null });
 
@@ -48,6 +51,15 @@ function Coach() {
       setShowConfirmation(true);
       return;
     }
+    // Cập nhật bookedSlots cho coach
+    setCoaches((prevCoaches) =>
+      prevCoaches.map((coach) =>
+        coach.id === selected.coach.id
+          ? { ...coach, bookedSlots: [...coach.bookedSlots, selected.slot] }
+          : coach
+      )
+    );
+    setConfirmedSlot({ coachId: selected.coach.id, slot: selected.slot }); // Lưu slot vừa xác nhận
     setShowConfirmation(true);
   };
 
@@ -64,7 +76,7 @@ function Coach() {
         <NavBar />
         <div className="coach-container">
           <h1 className="coach-title">Chuyên gia</h1>
-          {sampleCoaches.map((c) => (
+          {coaches.map((c) => (
             <div key={c.id} className="coach-card">
               <div className="coach-details">
                 <img src={c.avatar} alt={c.name} className="coach-avatar" />
@@ -78,9 +90,13 @@ function Coach() {
                   <div
                     key={i}
                     className={`coach-slot ${
-                      c.bookedSlots.includes(i)
+                      confirmedSlot &&
+                      confirmedSlot.coachId === c.id &&
+                      confirmedSlot.slot === i
+                        ? "slot-confirmed"
+                        : c.bookedSlots.includes(i)
                         ? "slot-booked"
-                        : "slot-available"
+                        : ""
                     }`}
                   >
                     {`${["T2", "T3", "T4", "T5", "T6", "T7", "CN"][Math.floor(i / 2)]} ${

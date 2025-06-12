@@ -349,10 +349,16 @@ Footer {
   text-align: center;
   padding: 4px;
   border-radius: 4px;
+  background-color: #ffffff; /* Mặc định: trắng */
+  color: #000000;
 }
 .slot-booked {
-  background-color: #fecaca;
-  color: #991b1b;
+  background-color: #ef4444; /* Đã đặt: đỏ */
+  color: #ffffff; /* Chữ trắng */
+}
+.slot-confirmed {
+  background-color: #22c55e; /* Vừa booking: xanh lá */
+  color: #ffffff; /* Chữ trắng */
 }
 .slot-available {
   background-color: #bbf7d0;
