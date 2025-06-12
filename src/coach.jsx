@@ -9,13 +9,15 @@ const sampleCoaches = [
   {
     id: 1,
     name: "Nguyễn Văn A",
-    avatar: CoachA, // Sử dụng biến import
+    email: "nguyenvana@example.com", // Thêm email
+    avatar: CoachA,
     bookedSlots: [2, 5],
   },
   {
     id: 2,
     name: "Trần Thị B",
-    avatar: CoachB, // Sử dụng biến import
+    email: "tranthib@example.com", // Thêm email
+    avatar: CoachB,
     bookedSlots: [3, 8],
   },
 ];
@@ -64,25 +66,28 @@ function Coach() {
           <h1 className="coach-title">Chuyên gia</h1>
           {sampleCoaches.map((c) => (
             <div key={c.id} className="coach-card">
-              <img src={c.avatar} alt={c.name} className="coach-avatar" />
-              <div className="coach-info">
-                <h2 className="coach-name">{c.name}</h2>
-                <div className="coach-slot-grid">
-                  {Array.from({ length: 14 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`coach-slot ${
-                        c.bookedSlots.includes(i)
-                          ? "slot-booked"
-                          : "slot-available"
-                      }`}
-                    >
-                      {`${["T2", "T3", "T4", "T5", "T6", "T7", "CN"][Math.floor(i / 2)]} ${
-                        i % 2 === 0 ? "S" : "C"
-                      }`}
-                    </div>
-                  ))}
+              <div className="coach-details">
+                <img src={c.avatar} alt={c.name} className="coach-avatar" />
+                <div className="coach-text">
+                  <h2 className="coach-name">{c.name}</h2>
+                  <p className="coach-email">{c.email}</p>
                 </div>
+              </div>
+              <div className="coach-slot-grid">
+                {Array.from({ length: 14 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`coach-slot ${
+                      c.bookedSlots.includes(i)
+                        ? "slot-booked"
+                        : "slot-available"
+                    }`}
+                  >
+                    {`${["T2", "T3", "T4", "T5", "T6", "T7", "CN"][Math.floor(i / 2)]} ${
+                      i % 2 === 0 ? "S" : "C"
+                    }`}
+                  </div>
+                ))}
               </div>
               <button className="btn-booking" onClick={() => openModal(c)}>
                 Booking

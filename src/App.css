@@ -310,23 +310,39 @@ Footer {
   margin-bottom: 20px;
   gap: 16px;
 }
+.coach-details {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+}
+.coach-text {
+  display: flex;
+  flex-direction: column;
+}
 .coach-avatar {
   width: 80px;
   height: 80px;
   border-radius: 50%;
+  object-fit: cover; /* Đảm bảo ảnh không bị méo */
 }
-.coach-info {
-  flex: 1;
-}
+
 .coach-name {
   font-size: 18px;
   font-weight: 600;
+  margin: 0 0 4px 0;
 }
+.coach-email {
+  font-size: 14px;
+  color: #4B5563;
+  margin: 0;
+}
+
 .coach-slot-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 6px;
-  margin-top: 8px;
+  flex: 0 0 50%; /* Cố định 50% chiều rộng */
 }
 .coach-slot {
   font-size: 12px;
@@ -564,9 +580,5 @@ Footer {
   background-color: #16a34a; /* Màu xanh lá đậm hơn khi hover */
 }
 
-.coach-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover; /* Đảm bảo ảnh không bị méo */
-}
+
+
