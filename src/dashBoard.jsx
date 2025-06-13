@@ -116,7 +116,7 @@ function NavBar() {
       <h4 style={navItemStyle('/diary')} onClick={() => navigate('/diary')}>Nhật ký</h4>
       <h4 style={navItemStyle('/missions')} onClick={() => navigate('/missions')}>Nhiệm vụ</h4> 
       <h4 style={navItemStyle('/ranking')} onClick={() => navigate('/ranking')}>Bảng xếp hạng</h4>
-      <h4 style={navItemStyle('/achievement')} onClick={() => navigate('/achievement')}>Thành tựu</h4>
+      <h4 style={navItemStyle('/Achievement')} onClick={() => navigate('/Achievement')}>Thành tựu</h4>
       <h4 style={navItemStyle('/service-package')} onClick={() => navigate('/service-package')}>Gói dịch vụ</h4>
       <h4 style={navItemStyle('/coach')} onClick={() => navigate('/coach')}>Chuyên gia</h4>
       <h4 style={navItemStyle('/blog')} onClick={() => navigate('/blog')}>bài viết</h4> 
