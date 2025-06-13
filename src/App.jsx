@@ -7,7 +7,7 @@ import Diary from './diary.jsx';
 import Missions from './missions.jsx';
 import Ranking from './ranking.jsx';
 import Coach from './coach.jsx';
-import Achievement from './achievement.jsx';
+import Achievement from './Achievement.jsx';
 import ServicePackage from './ServicePackage.jsx';
 import Login from './login.jsx';
 import PrivateRoute from './PrivateRoute.jsx';
@@ -21,9 +21,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path='/survey' element={
-            <PrivateRoute>
+            
               <Survey />
-            </PrivateRoute>
+            
           } />
           <Route path='/' element={
             <PrivateRoute>

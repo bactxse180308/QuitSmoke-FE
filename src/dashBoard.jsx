@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { SiOxygen } from "react-icons/si";
 
-
 function NavBar() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -15,9 +14,10 @@ function NavBar() {
       id: 1,
       type: "achievement",
       title: "Chúc mừng! Bạn đã đạt được thành tựu mới",
-      description: "Huy hiệu 'Tuần đầu tiên' - Hoàn thành 7 ngày không hút thuốc",
+      description: "Huy hiệu 'Tuần Lễ Vàng' - Hoàn thành 7 ngày không hút thuốc",
       time: "2 phút trước",
       read: false,
+      link: '/achievement', // <-- THÊM LINK ĐIỀU HƯỚNG
     },
     {
       id: 2,
@@ -26,6 +26,7 @@ function NavBar() {
       description: "Bạn có cuộc hẹn với Dr. Trần Minh Tuấn vào 15:00 ngày mai",
       time: "1 giờ trước",
       read: false,
+      link: '/coach', // <-- THÊM LINK ĐIỀU HƯỚNG
     },
     {
       id: 3,
@@ -42,6 +43,7 @@ function NavBar() {
       description: "Bạn đã hoàn thành nhiệm vụ 'Tập thể dục 30 phút' hôm nay",
       time: "5 giờ trước",
       read: true,
+      link: '/missions' // <-- THÊM LINK ĐIỀU HƯỚNG
     },
     {
       id: 5,
@@ -59,13 +61,20 @@ function NavBar() {
     setIsNotificationOpen(!isNotificationOpen);
   };
 
-  const markAsRead = (id) => {
+  // --- HÀM XỬ LÝ CLICK ĐÃ ĐƯỢC CẢI TIẾN ---
+  const handleItemClick = (notification) => {
+    // 1. Đánh dấu đã đọc
     setNotifications(prev =>
-      prev.map(n => (n.id === id ? { ...n, read: true } : n))
+      prev.map(n => (n.id === notification.id ? { ...n, read: true } : n))
     );
+
+    // 2. Nếu có link, điều hướng đến đó
+    if (notification.link) {
+      navigate(notification.link);
+      setIsNotificationOpen(false); // Đóng popup sau khi điều hướng
+    }
   };
 
-  // Đóng popup khi click ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (popupRef.current && !popupRef.current.contains(event.target)) {
@@ -76,7 +85,7 @@ function NavBar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => location.pathname === path || (path === '/achievement' && location.pathname.startsWith('/achievement'));
 
   const navItemStyle = (path) => ({
     margin: '0 10px',
@@ -137,80 +146,55 @@ function NavBar() {
           </div>
         )}
         {isNotificationOpen && (
-  <div style={{
-    position: 'absolute',
-    top: 30,
-    right: 0,
-    width: 320,
-    maxHeight: 400,
-    background: 'white',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-    borderRadius: 10,
-    zIndex: 10,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden', // giữ border-radius khi scroll
-  }}>
-    {/* Header cố định */}
-    <div style={{
-      position: 'sticky',
-      top: 0,
-      background: 'white',
-      zIndex: 1,
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '10px',
-      borderBottom: '1px solid #eee',
-    }}>
-      <h4 style={{ margin: 0 }}>Thông báo</h4>
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-        }}
-        style={{
-          background: 'transparent',
-          border: 'none',
-          color: '#007bff',
-          cursor: 'pointer',
-          fontSize: '14px'
-        }}
-      >
-        Đánh dấu đã đọc
-      </button>
-    </div>
-
-    {/* Danh sách thông báo */}
-    <div style={{
-      overflowY: 'auto',
-      padding: '10px',
-      maxHeight: '340px',
-    }}>
-      {notifications.length === 0 ? (
-        <p>Không có thông báo nào</p>
-      ) : (
-        notifications.map(n => (
-          <div key={n.id}
-            onClick={() => markAsRead(n.id)}
-            style={{
-              marginBottom: 10,
-              background: n.read ? '#f0f0f0' : '#e6ffed',
-              padding: 10,
-              borderRadius: 8,
-              cursor: 'pointer',
+          <div style={{
+            position: 'absolute',
+            top: 30,
+            right: 0,
+            width: 320,
+            maxHeight: 400,
+            background: 'white',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            borderRadius: 10,
+            zIndex: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              position: 'sticky', top: 0, background: 'white', zIndex: 1, display: 'flex',
+              justifyContent: 'space-between', alignItems: 'center', padding: '10px',
+              borderBottom: '1px solid #eee',
             }}>
-            <strong>{n.title}</strong>
-            <p style={{ margin: 0 }}>{n.description}</p>
-            <small style={{ color: '#888' }}>{n.time}</small>
+              <h4 style={{ margin: 0 }}>Thông báo</h4>
+              <button onClick={(e) => { e.stopPropagation(); setNotifications(prev => prev.map(n => ({ ...n, read: true }))); }}
+                style={{ background: 'transparent', border: 'none', color: '#007bff', cursor: 'pointer', fontSize: '14px' }}
+              >
+                Đánh dấu đã đọc
+              </button>
+            </div>
+            <div style={{ overflowY: 'auto', padding: '10px', maxHeight: '340px' }}>
+              {notifications.length === 0 ? (
+                <p>Không có thông báo nào</p>
+              ) : (
+                notifications.map(n => (
+                  <div key={n.id}
+                    onClick={() => handleItemClick(n)} // <-- SỬ DỤNG HÀM MỚI
+                    style={{
+                      marginBottom: 10,
+                      background: n.read ? '#f0f0f0' : '#e6ffed',
+                      padding: 10,
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                    }}>
+                    <strong>{n.title}</strong>
+                    <p style={{ margin: 0 }}>{n.description}</p>
+                    <small style={{ color: '#888' }}>{n.time}</small>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
-        ))
-      )}
-    </div>
-  </div>
-)}
-
-        
+        )}
       </div>
 
       <icon.MessageCircle style={{ marginLeft: 15 }} />
@@ -218,6 +202,7 @@ function NavBar() {
   );
 }
 
+// ... Phần còn lại của Dashboard.jsx giữ nguyên ...
 function ImprovedCard(props) {
   const isPositive = props.percentageChange >= 0;
   const percentageText = `${isPositive ? '+' : ''}${props.percentageChange}%`;
@@ -231,9 +216,7 @@ function ImprovedCard(props) {
         </div>
         <div className={`pulse-change ${isPositive ? 'positive' : 'negative'}`}>{percentageText}</div>
       </div>
-
       <div className="pulse-value">{props.value} {props.unit}</div>
-
       <div className="pulse-bar">
         <div className="pulse-bar-fill" style={{ width: `${props.progress}%` }}></div>
       </div>
@@ -256,7 +239,6 @@ function DashBoard() {
             <ImprovedCard percentageChange = "10" title="Hô hấp" Icon={icon.Wind} value={10} unit="bpm" progress={80}/>
           </div>
         </div>
-        
         </>
     )
 }
