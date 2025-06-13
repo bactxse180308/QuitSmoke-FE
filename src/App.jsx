@@ -12,6 +12,8 @@ import ServicePackage from './ServicePackage.jsx';
 import Login from './login.jsx';
 import PrivateRoute from './PrivateRoute.jsx';
 
+import Blog from './Blog.jsx'; // Đây là trang danh sách
+import ArticleDetail from './ArticleDetail.jsx'; // Đây là trang chi tiết, chúng ta sẽ tạo file nà
 function App() {
 
   return (
@@ -31,6 +33,9 @@ function App() {
         <Route path='service-package' element={<ServicePackage/>} />
         <Route path='coach' element={<Coach/>} />
         <Route path='login' element={<Login/>} />
+        {/* Cấu trúc route cho Blog */}
+          <Route path='blog' element={<Blog />} />
+          <Route path='blog/:slug' element={<ArticleDetail />} /> 
       </Routes>
     </BrowserRouter>
     
