@@ -23,24 +23,48 @@ const CloseIcon = () => (
 function Diary() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [diaryEntries, setDiaryEntries] = useState([]);
-  const [formData, setFormData] = useState({
-    date: new Date().toISOString().split("T")[0],
-    smoked: "no",
-    cravingLevel: 1,
-    cravingTimes: 0,
-    nrtCost: 0,
-  });
+const [formData, setFormData] = useState({
+  date: new Date().toISOString().split("T")[0],
+  smokedToday: "no",               // radio button
+  cravingLevel: 1,                 // range slider
+  stressLevel: 1,                  // range slider
+  mood: "neutral",                 // select option
+  cigarettesSmoked: 0,            // number input, chỉ hiện nếu hút
+  spentMoneyOnCigarettes: 0       // number input
+});
+
+  const [userID, setUserID] = useState("");
 
   useEffect(() => {
-    const savedEntries = localStorage.getItem("diaryEntries");
-    if (savedEntries) {
-      setDiaryEntries(JSON.parse(savedEntries));
+  const fetchDiaryEntries = async () => {
+    try {
+      const user = await fetch("http://localhost:8080/api/auth/get-session-user", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  credentials: "include" // gửi cookie (session) nếu dùng Spring Boot hoặc Express session
+});
+      if (!user) {
+        console.error("Không tìm thấy user");
+        return;
+      } else {
+        const userData = await user.json();
+        const userID = userData.userID; // Lấy ID người dùng từ dữ liệu trả về
+        setUserID(userID); // Lưu ID người dùng vào state
+      const response = await fetch(`http://localhost:8080/api/user-daily-logs?userId=${userID}`);
+      if (!response.ok) throw new Error("Lỗi khi tải dữ liệu nhật ký");
+
+      const data = await response.json();
+      setDiaryEntries(data);
+      }
+    } catch (error) {
+      console.error("Fetch diary entries error:", error);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    localStorage.setItem("diaryEntries", JSON.stringify(diaryEntries));
-  }, [diaryEntries]);
+  fetchDiaryEntries();
+}, []);
 
   // Ngăn cuộn trang nền khi modal mở
   useEffect(() => {
@@ -51,6 +75,7 @@ function Diary() {
     }
   }, [isModalOpen]);
 
+  console.log("userID:", userID); // Kiểm tra xem userID đã được gán đúng chưa
 
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
@@ -59,19 +84,51 @@ function Diary() {
     setFormData((prev) => ({ ...prev, [name]: processedValue }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setDiaryEntries((prev) => [{ ...formData, id: Date.now() }, ...prev]);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  const dataToSend = {
+    userID,
+    ...formData,
+  };
+  try {
+    const response = await fetch('http://localhost:8080/api/user-daily-logs/create-daily-logs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(dataToSend),
+    });
+    console.log("formData:", dataToSend); // Kiểm tra dữ liệu gửi đi
+
+    if (!response.ok) {
+      console.log(dataToSend);
+      throw new Error("Lỗi khi gửi nhật ký");
+    }
+
+    // Sau khi gửi thành công, gọi lại GET để cập nhật danh sách
+    const updated = await fetch('http://localhost:8080/api/user-daily-logs');
+    const updatedData = await updated.json();
+    setDiaryEntries(updatedData);
+
+    // Đóng modal và reset form
     setIsModalOpen(false);
-    // Reset form về trạng thái ban đầu
+
+
     setFormData({
       date: new Date().toISOString().split("T")[0],
-      smoked: "no",
-      cravingLevel: 1,
-      cravingTimes: 0,
-      nrtCost: 0,
+      smokedToday: "no",               // radio button
+      cravingLevel: 1,                 // range slider
+      stressLevel: 1,                  // range slider
+      mood: "neutral",                 // select option
+      cigarettesSmoked: 0,            // number input, chỉ hiện nếu hút
+      spentMoneyOnCigarettes: 0 
     });
-  };
+  } catch (error) {
+    console.error("Lỗi khi lưu nhật ký:", error);
+    alert("Đã xảy ra lỗi khi gửi nhật ký. Vui lòng thử lại.");
+  }
+};
+
 
   return (
     <div className="dry-diary-container">
@@ -158,9 +215,9 @@ function Diary() {
                   <label className="dry-modal-radio">
                     <input
                       type="radio"
-                      name="smoked"
+                      name="smokedToday"
                       value="no"
-                      checked={formData.smoked === "no"}
+                      checked={formData.smokedToday === "no"}
                       onChange={handleInputChange}
                     />
                     <span className="dry-modal-radio-custom">Không</span>
@@ -168,13 +225,38 @@ function Diary() {
                   <label className="dry-modal-radio">
                     <input
                       type="radio"
-                      name="smoked"
+                      name="smokedToday"
                       value="yes"
-                      checked={formData.smoked === "yes"}
+                      checked={formData.smokedToday === "yes"}
                       onChange={handleInputChange}
                     />
                     <span className="dry-modal-radio-custom">Có</span>
                   </label>
+                </div>
+              </div>
+
+              <div className="dry-modal-field">
+                <label className="dry-modal-label" htmlFor="cravingLevel">Tâm trạng</label>
+                 <div className="dry-modal-select">
+                    <select
+                      id="mood"
+                      type=""
+                      name="mood"
+                      min="1"
+                      max="10"
+                      value={formData.mood}
+                      onChange={handleInputChange}
+                      className="dry-modal-input"
+                    >
+                      <option value="happy">Vui vẻ</option>
+                      <option value="relaxed">Thư giãn</option>
+                      <option value="neutral">Bình thường</option>
+                      <option value="sad">Buồn bã</option>
+                      <option value="angry">Tức giận</option>
+                      <option value="anxious">Lo lắng</option>
+                      <option value="bored">Chán nản</option>
+                      <option value="tired">Mệt mỏi</option>
+                    </select>
                 </div>
               </div>
 
@@ -196,13 +278,30 @@ function Diary() {
               </div>
 
               <div className="dry-modal-field">
-                <label className="dry-modal-label" htmlFor="cravingTimes">Số điếu thuốc hút trong ngày</label>
+                <label className="dry-modal-label" htmlFor="stressLevel">Mức độ căng thẳng</label>
+                 <div className="dry-modal-range-container">
+                    <input
+                      id="stressLevel"
+                      type="range"
+                      name="stressLevel"
+                      min="1"
+                      max="10"
+                      value={formData.stressLevel}
+                      onChange={handleInputChange}
+                      className="dry-modal-range"
+                    />
+                    <span className="dry-modal-range-value">{formData.stressLevel}</span>
+                </div>
+              </div>
+
+              <div className="dry-modal-field" hidden={formData.smokedToday === "no"}>
+                <label className="dry-modal-label" htmlFor="cigarettesSmoked">Số điếu thuốc hút trong ngày</label>
                 <input
-                  id="cravingTimes"
+                  id="cigarettesSmoked"
                   type="number"
-                  name="cravingTimes"
+                  name="cigarettesSmoked"
                   min="0"
-                  value={formData.cravingTimes}
+                  value={formData.cigarettesSmoked}
                   onChange={handleInputChange}
                   className="dry-modal-input"
                   required
@@ -210,13 +309,13 @@ function Diary() {
               </div>
 
               <div className="dry-modal-field">
-                <label className="dry-modal-label" htmlFor="nrtCost">Tổng chi phí cho NRT (VNĐ)</label>
+                <label className="dry-modal-label" htmlFor="spentMoneyOnCigarettes">Tổng chi phí cho NRT (Liệu pháp thay thế Nicotine) (VNĐ)</label>
                 <input
-                  id="nrtCost"
+                  id="spentMoneyOnCigarettes"
                   type="number"
-                  name="nrtCost"
+                  name="spentMoneyOnCigarettes"
                   min="0"
-                  value={formData.nrtCost}
+                  value={formData.spentMoneyOnCigarettes}
                   onChange={handleInputChange}
                   className="dry-modal-input"
                   required
@@ -386,6 +485,8 @@ function Diary() {
             /* Thêm hiệu ứng */
             transform: scale(0.95);
             animation: scaleIn 0.3s ease-out forwards;
+            max-height: 90vh; /* giới hạn chiều cao modal */
+  overflow-y: auto; /* bật cuộn dọc khi nội dung vượt quá */
           }
            @keyframes scaleIn {
             from { transform: scale(0.95); opacity: 0.8; }
@@ -426,7 +527,7 @@ function Diary() {
             margin-bottom: 0.5rem;
           }
           .dry-modal-input {
-            width: 100%;
+            width: 95%;
             padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 8px;

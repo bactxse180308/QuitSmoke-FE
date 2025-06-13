@@ -51,10 +51,11 @@ function Survey() {
         }
         setErrorMessage(""); // xoá lỗi nếu trước đó có
 
-        const fullData = {
+        const { repeatpassword, ...fullData } = {
             ...surveyData,
             ...registerData,
         };
+        console.log("Sending data:", fullData);
 
         try {
             const response = await fetch("http://localhost:8080/api/survey-register/register", {
@@ -62,6 +63,7 @@ function Survey() {
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials: "include", // gửi cookie session nếu cần
                 body: JSON.stringify(fullData),
             });
 

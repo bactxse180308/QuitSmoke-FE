@@ -6,8 +6,8 @@ function PrivateRoute({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
-    axios.get("http://localhost:8080/api/login/check-session", {
-      withCredentials: true, // gửi cookie session
+    axios.get("http://localhost:8080/api/auth/check-session", {
+      withCredentials: true// gửi cookie session
     })
     .then(res => {
       if (res.data.authenticated) {
