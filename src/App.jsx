@@ -18,27 +18,66 @@ function App() {
 
   return (
     <>
-    <BrowserRouter>
-      <Routes>
-        <Route path='/survey' element={<Survey/>}/>
-        <Route path='/' element={<HomePage/>}/>
-        <Route path='/dashboard' element={
-                        <PrivateRoute>
-                            <DashBoard />
-                        </PrivateRoute>} />
-        <Route path='diary' element={<Diary/>} />
-        <Route path='missions' element={<Missions/>} />
-        <Route path='ranking' element={<Ranking/>} />
-        <Route path='achievement' element={<Achievement/>} />
-        <Route path='service-package' element={<ServicePackage/>} />
-        <Route path='coach' element={<Coach/>} />
-        <Route path='login' element={<Login/>} />
-        {/* Cấu trúc route cho Blog */}
-          <Route path='blog' element={<Blog />} />
-          <Route path='blog/:slug' element={<ArticleDetail />} /> 
-      </Routes>
-    </BrowserRouter>
-    
+      <BrowserRouter>
+        <Routes>
+          <Route path='/survey' element={
+            <PrivateRoute>
+              <Survey />
+            </PrivateRoute>
+          } />
+          <Route path='/' element={
+            <PrivateRoute>
+              <HomePage />
+            </PrivateRoute>
+          } />
+          <Route path='/dashboard' element={
+            <PrivateRoute>
+              <DashBoard />
+            </PrivateRoute>} />
+          <Route path='diary' element={
+            <PrivateRoute>
+              <Diary />
+            </PrivateRoute>
+          } />
+          <Route path='missions' element={
+            <PrivateRoute>
+            <Missions />
+          </PrivateRoute>} />
+          <Route path='ranking' element={
+            <PrivateRoute>
+              <Ranking />
+            </PrivateRoute>
+          } />
+          <Route path='achievement' element={
+            <PrivateRoute>
+              <Achievement />
+            </PrivateRoute>
+          } />
+          <Route path='service-package' element={
+            <PrivateRoute>
+              <ServicePackage />
+            </PrivateRoute>
+          } />
+          <Route path='coach' element={
+            <PrivateRoute>
+              <Coach />
+            </PrivateRoute>
+          } />
+          <Route path='login' element={<Login />} />
+          {/* Cấu trúc route cho Blog */}
+          <Route path='blog' element={
+            <PrivateRoute>
+              <Blog />
+            </PrivateRoute>
+          } />
+          <Route path='blog/:slug' element={
+            <PrivateRoute>
+              <ArticleDetail />
+            </PrivateRoute>
+          } />
+        </Routes>
+      </BrowserRouter>
+
     </>
   )
 }

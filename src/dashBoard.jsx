@@ -1,6 +1,7 @@
 import * as icon from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
+import { SiOxygen } from "react-icons/si";
 
 
 function NavBar() {
@@ -248,7 +249,11 @@ function DashBoard() {
           <h2 style={{textAlign:'left'}}><strong>Tổng Quan</strong></h2>
           <h3 style={{textAlign:'left'}}>Cải thiện sức khỏe của bạn</h3>
           <div className='ImprovedCardContainer'>
-            <ImprovedCard percentageChange = "10" title="Pulse Rate" Icon={icon.Heart} value={10} unit="bpm" progress={80}></ImprovedCard>
+            <ImprovedCard percentageChange = "10" title="Mạch" Icon={icon.Heart} value={10} unit="bpm" progress={80}></ImprovedCard>
+            <ImprovedCard percentageChange = "10" title="Nồng độ Oxy trong máu" Icon={SiOxygen} value={10} unit="bpm" progress={80}/>
+            <ImprovedCard percentageChange = "10" title="Nồng độ Nicotine trong cơ thể" Icon={icon.Cigarette} value={10} unit="bpm" progress={80}/>
+            <ImprovedCard percentageChange = "10" title="Vị giác & thính giác" Icon={icon.Coffee} value={10} unit="bpm" progress={80}/>
+            <ImprovedCard percentageChange = "10" title="Hô hấp" Icon={icon.Wind} value={10} unit="bpm" progress={80}/>
           </div>
         </div>
         

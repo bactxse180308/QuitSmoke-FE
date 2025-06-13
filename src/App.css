@@ -510,6 +510,7 @@ Footer {
           flex-direction: column;
           gap: 0.75rem;
           font-family: sans-serif;
+          margin: 0 20px;
         }
 #dashBoard .pulse-header {
           display: flex;
@@ -1074,3 +1075,7 @@ Footer {
 }
 
 /* --- End of Blog / Articles Page Styles --- */
+
+#dashBoard .ImprovedCardContainer {
+  display: flex;
+}
