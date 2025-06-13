@@ -1,6 +1,25 @@
 import { NavBar } from "./dashBoard";
 import { useState, useEffect } from "react";
 
+// Một icon 'X' đơn giản bằng SVG để đóng modal
+const CloseIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+);
+
+
 function Diary() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [diaryEntries, setDiaryEntries] = useState([]);
@@ -23,15 +42,28 @@ function Diary() {
     localStorage.setItem("diaryEntries", JSON.stringify(diaryEntries));
   }, [diaryEntries]);
 
+  // Ngăn cuộn trang nền khi modal mở
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [isModalOpen]);
+
+
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    // Đảm bảo giá trị là số cho các input number
+    const processedValue = type === 'number' || type === 'range' ? parseFloat(value) : value;
+    setFormData((prev) => ({ ...prev, [name]: processedValue }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setDiaryEntries((prev) => [{ ...formData, id: Date.now(), date: formData.date }, ...prev]);
+    setDiaryEntries((prev) => [{ ...formData, id: Date.now() }, ...prev]);
     setIsModalOpen(false);
+    // Reset form về trạng thái ban đầu
     setFormData({
       date: new Date().toISOString().split("T")[0],
       smoked: "no",
@@ -71,7 +103,7 @@ function Diary() {
                     </p>
                     <p className="dry-history-text">
                       <span className="dry-history-label">Hút thuốc:</span>
-                      <span className="dry-history-value" style={{ color: entry.smoked === "yes" ? "#dc2626" : "inherit" }}>
+                      <span className="dry-history-value" style={{ color: entry.smoked === "yes" ? "#ef4444" : "#10b981", fontWeight: 'bold' }}>
                         {entry.smoked === "yes" ? "Có" : "Không"}
                       </span>
                     </p>
@@ -102,11 +134,15 @@ function Diary() {
       {isModalOpen && (
         <div className="dry-modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="dry-modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2 className="dry-modal-title">Thêm nhật ký mới</h2>
+             <button className="dry-modal-close-button" onClick={() => setIsModalOpen(false)}>
+                <CloseIcon />
+            </button>
+            <h2 className="dry-modal-title">Nhật ký hôm nay</h2>
             <form onSubmit={handleSubmit}>
               <div className="dry-modal-field">
-                <label className="dry-modal-label">Ngày</label>
+                <label className="dry-modal-label" htmlFor="date">Ngày</label>
                 <input
+                  id="date"
                   type="date"
                   name="date"
                   value={formData.date}
@@ -117,7 +153,7 @@ function Diary() {
               </div>
 
               <div className="dry-modal-field">
-                <label className="dry-modal-label">Bạn có hút thuốc kể từ lần ghi trước không?</label>
+                <label className="dry-modal-label">Hôm nay bạn có hút điếu nào không?</label>
                 <div className="dry-modal-radio-group">
                   <label className="dry-modal-radio">
                     <input
@@ -127,7 +163,7 @@ function Diary() {
                       checked={formData.smoked === "no"}
                       onChange={handleInputChange}
                     />
-                    <span className="dry-modal-radio-label">Không</span>
+                    <span className="dry-modal-radio-custom">Không</span>
                   </label>
                   <label className="dry-modal-radio">
                     <input
@@ -137,28 +173,32 @@ function Diary() {
                       checked={formData.smoked === "yes"}
                       onChange={handleInputChange}
                     />
-                    <span className="dry-modal-radio-label">Có</span>
+                    <span className="dry-modal-radio-custom">Có</span>
                   </label>
                 </div>
               </div>
 
               <div className="dry-modal-field">
-                <label className="dry-modal-label">Mức độ thèm thuốc (1-10)</label>
-                <input
-                  type="range"
-                  name="cravingLevel"
-                  min="1"
-                  max="10"
-                  value={formData.cravingLevel}
-                  onChange={handleInputChange}
-                  className="dry-modal-range"
-                />
-                <span className="dry-modal-range-value">{formData.cravingLevel}</span>
+                <label className="dry-modal-label" htmlFor="cravingLevel">Mức độ thèm thuốc</label>
+                 <div className="dry-modal-range-container">
+                    <input
+                      id="cravingLevel"
+                      type="range"
+                      name="cravingLevel"
+                      min="1"
+                      max="10"
+                      value={formData.cravingLevel}
+                      onChange={handleInputChange}
+                      className="dry-modal-range"
+                    />
+                    <span className="dry-modal-range-value">{formData.cravingLevel}</span>
+                </div>
               </div>
 
               <div className="dry-modal-field">
-                <label className="dry-modal-label">Số lần thèm thuốc trong ngày</label>
+                <label className="dry-modal-label" htmlFor="cravingTimes">Số điếu thuốc hút trong ngày</label>
                 <input
+                  id="cravingTimes"
                   type="number"
                   name="cravingTimes"
                   min="0"
@@ -170,8 +210,9 @@ function Diary() {
               </div>
 
               <div className="dry-modal-field">
-                <label className="dry-modal-label">Tổng chi phí cho NRT (VNĐ)</label>
+                <label className="dry-modal-label" htmlFor="nrtCost">Tổng chi phí cho NRT (VNĐ)</label>
                 <input
+                  id="nrtCost"
                   type="number"
                   name="nrtCost"
                   min="0"
@@ -183,10 +224,10 @@ function Diary() {
               </div>
 
               <div className="dry-modal-buttons">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="dry-modal-cancel">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="dry-modal-button dry-modal-cancel">
                   Hủy
                 </button>
-                <button type="submit" className="dry-modal-save">
+                <button type="submit" className="dry-modal-button dry-modal-save">
                   Lưu nhật ký
                 </button>
               </div>
@@ -195,203 +236,326 @@ function Diary() {
         </div>
       )}
 
+      {/* --- PHẦN CSS ĐÃ ĐƯỢC NÂNG CẤP --- */}
       <style>
         {`
+          :root {
+            --primary-color: #10b981;
+            --primary-hover: #059669;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f9fafb;
+            --border-color: #d1d5db;
+            --danger-color: #ef4444;
+          }
+
           .dry-diary-container {
             min-height: 100vh;
-            background-color: #ffffff;
+            background-color: var(--bg-light);
           }
           .dry-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 2rem 1rem;
           }
           .dry-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 2rem;
           }
           .dry-title {
             font-size: 2rem;
-            font-weight: bold;
-            color: #1f2937;
-            margin: 0;
-          }
-          .dry-button-container {
+            font-weight: 700;
+            color: var(--text-dark);
             margin: 0;
           }
           .dry-add-button {
-            background-color: #10b981;
+            background-color: var(--primary-color);
             color: white;
-            padding: 8px 16px;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.1s ease;
           }
           .dry-add-button:hover {
-            background-color: #059669;
+            background-color: var(--primary-hover);
+          }
+          .dry-add-button:active {
+            transform: scale(0.98);
           }
           .dry-history-card {
             background-color: #ffffff;
-            padding: 20px;
-            border: 1px solid #e5e7eb;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
           }
           .dry-subtitle {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #374151;
-            margin-bottom: 15px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
           }
           .dry-no-entries {
             text-align: center;
-            color: #6b7280;
-            font-size: 14px;
+            color: var(--text-light);
+            font-size: 1rem;
+            padding: 2rem 0;
           }
           .dry-history-list {
-            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
           }
           .dry-history-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem;
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
           }
           .dry-history-details {
             flex-grow: 1;
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 1.5rem;
             align-items: center;
           }
           .dry-history-text {
             margin: 0;
-            font-size: 14px;
-            color: #374151;
-            display: flex;
-            align-items: center;
+            font-size: 0.9rem;
           }
           .dry-history-date {
-            font-weight: bold;
-            color: #1f2937;
-            margin-right: 20px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-dark);
+            min-width: 90px;
           }
           .dry-history-label {
-            font-weight: bold;
-            margin-right: 5px;
-            color: #6b7280;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            color: var(--text-light);
           }
           .dry-history-value {
-            color: #374151;
+            font-weight: 600;
+            color: var(--text-dark);
           }
           .dry-history-time {
-            font-size: 12px;
-            color: #6b7280;
+            font-size: 0.8rem;
+            color: var(--text-light);
             min-width: 50px;
             text-align: right;
           }
+
+          /* --- CSS CHO MODAL --- */
           .dry-modal-overlay {
             position: fixed;
             inset: 0;
-            background-color: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(5px);
+            background-color: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(4px);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 50;
+            padding: 1rem;
+            /* Thêm hiệu ứng */
+            opacity: 0;
+            animation: fadeIn 0.3s ease-out forwards;
+          }
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
           }
           .dry-modal-content {
             background-color: #ffffff;
-            padding: 20px;
-            border-radius: 4px;
-            width: 90%;
-            max-width: 400px;
+            padding: 2rem;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 480px;
             position: relative;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            /* Thêm hiệu ứng */
+            transform: scale(0.95);
+            animation: scaleIn 0.3s ease-out forwards;
+          }
+           @keyframes scaleIn {
+            from { transform: scale(0.95); opacity: 0.8; }
+            to { transform: scale(1); opacity: 1; }
+          }
+          .dry-modal-close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0.25rem;
+            border-radius: 50%;
+            transition: background-color 0.2s, color 0.2s;
+          }
+          .dry-modal-close-button:hover {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
           }
           .dry-modal-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #1f2937;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
             text-align: left;
-            margin-bottom: 15px;
+            margin-top: 0;
+            margin-bottom: 2rem;
           }
           .dry-modal-field {
-            margin-bottom: 15px;
+            margin-bottom: 1.5rem;
           }
           .dry-modal-label {
             display: block;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 0.9rem;
+            font-weight: 600;
             color: #374151;
-            margin-bottom: 5px;
+            margin-bottom: 0.5rem;
           }
           .dry-modal-input {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #000000;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
             background-color: #ffffff;
-            color: #000000;
+            color: var(--text-dark);
+            transition: border-color 0.2s, box-shadow 0.2s;
           }
+          .dry-modal-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+          }
+          
+          /* Styling cho radio button tùy chỉnh */
           .dry-modal-radio-group {
-            margin-top: 5px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
           }
-          .dry-modal-radio {
+          .dry-modal-radio input[type="radio"] {
+            display: none; /* Ẩn radio button gốc */
+          }
+          .dry-modal-radio-custom {
+            display: block;
+            text-align: center;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+          }
+          .dry-modal-radio input[type="radio"]:checked + .dry-modal-radio-custom {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            font-weight: 600;
+          }
+          .dry-modal-radio input[value="yes"]:checked + .dry-modal-radio-custom {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+          }
+          
+          /* Styling cho thanh trượt */
+           .dry-modal-range-container {
             display: flex;
             align-items: center;
-            margin-right: 15px;
-          }
-          .dry-modal-radio input {
-            margin-right: 5px;
-          }
-          .dry-modal-radio-label {
-            color: #374151;
-            font-size: 14px;
+            gap: 1rem;
           }
           .dry-modal-range {
+            -webkit-appearance: none;
+            appearance: none;
             width: 100%;
-            margin-top: 5px;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.9;
+            transition: opacity .2s;
+          }
+          .dry-modal-range:hover {
+            opacity: 1;
+          }
+          .dry-modal-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 2px rgba(0,0,0,0.2);
+          }
+          .dry-modal-range::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid white;
           }
           .dry-modal-range-value {
-            display: block;
-            margin-top: 5px;
-            color: #6b7280;
-            font-size: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            min-width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 600;
           }
+          
           .dry-modal-buttons {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 0.75rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+          }
+          .dry-modal-button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
           }
           .dry-modal-cancel {
-            background-color: #d1d5db;
-            color: #1f2937;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
+            background-color: #ffffff;
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
           }
           .dry-modal-cancel:hover {
-            background-color: #9ca3af;
+            background-color: var(--bg-light);
           }
           .dry-modal-save {
-            background-color: #10b981;
+            background-color: var(--primary-color);
             color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
           }
           .dry-modal-save:hover {
-            background-color: #059669;
+            background-color: var(--primary-hover);
+          }
+          .dry-modal-button:active {
+            transform: scale(0.98);
           }
         `}
       </style>
