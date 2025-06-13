@@ -456,12 +456,78 @@ Footer {
 }
 
 #modalContent input {
-  width: 90%;
-  text-align: center;
+  width: 80%;
+  text-align: left;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #f3f4f6; /* màu nền nhẹ */
   border-color: #16A34A; /* màu viền nhẹ */
   margin-bottom: 10px;
+  color: black;
 }
+
+#modalContent h2 {
+  align-items: center;
+  display: block;
+}
+
+#dashBoard {
+  margin: 10px 10vw;
+}
+
+ {
+  
+}
+
+#dashBoard .pulse-card {
+          width: 100%;
+          max-width: 20rem;
+          padding: 1rem;
+          border: 1px solid #e5e7eb;
+          border-radius: 0.5rem;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          font-family: sans-serif;
+        }
+#dashBoard .pulse-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+#dashBoard .pulse-title {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: #4b5563;
+          font-weight: 500;
+        }
+#dashBoard .pulse-icon {
+          color: #16a34a;
+        }
+#dashBoard .pulse-change.positive {
+          color: #16a34a;
+          font-weight: 600;
+        }
+#dashBoard .pulse-change.negative {
+          color: #dc2626;
+          font-weight: 600;
+        }
+#dashBoard .pulse-value {
+          font-size: 1.5rem;
+          font-weight: bold;
+          
+        }
+#dashBoard .pulse-bar {
+          width: 100%;
+          height: 0.5rem;
+          background-color: #e5e7eb;
+          border-radius: 0.25rem;
+        }
+#dashBoard .pulse-bar-fill {
+          height: 100%;
+          background-color: #0f172a;
+          border-radius: 0.25rem;
+        }

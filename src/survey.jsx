@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Footer } from "./homePage";
+import { useNavigate } from "react-router-dom";
 
 function Survey() {
     const [showRegisterModal, setShowRegisterModal] = useState(false);
 
     const [errorMessage, setErrorMessage] = useState("");
 
+    const navigate = useNavigate();
 
     // State cho survey
     const [surveyData, setSurveyData] = useState({
@@ -55,7 +57,7 @@ function Survey() {
         };
 
         try {
-            const response = await fetch("http://localhost:8080/api/register", {
+            const response = await fetch("http://localhost:8080/api/survey-register/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -66,6 +68,7 @@ function Survey() {
             if (response.ok) {
                 alert("Gửi thành công!");
                 setShowRegisterModal(false);
+                navigate("/dashboard");
             } else {
                 alert("Gửi thất bại.");
             }
@@ -97,13 +100,16 @@ function Survey() {
                     </div>
 
                     <h2>Bạn hút bao nhiêu điếu mỗi ngày?</h2>
-                    <input className="input-class" type="number" name="cigarettesPerDay" min="0" required onChange={handleSurveyChange} />
+                    <p>Ví dụ: 10 điếu</p>
+                    <input className="input-class" type="number" name="cigarettesPerDay" min="0" placeholder="Nhập số điếu" required onChange={handleSurveyChange} />
 
-                    <h2>Bạn đã hút bao lâu?</h2>
-                    <input className="input-class" type="number" name="yearsSmoking" min="0" required onChange={handleSurveyChange} />
+                    <h2>Bạn đã hút thuốc bao lâu?</h2>
+                    <p>Ví dụ: 10 năm</p>
+                    <input className="input-class" type="number" name="yearsSmoking" min="0" placeholder="Nhập số năm" required onChange={handleSurveyChange} />
 
-                    <h2>Giá mỗi gói thuốc?</h2>
-                    <input className="input-class" type="number" name="packPrice" min="0" required onChange={handleSurveyChange} />
+                    <h2>Giá trung bình mỗi gói thuốc mà bạn sử dụng?</h2>
+                    <p>Ví dụ: 25000 VND</p>
+                    <input className="input-class" type="number" name="packPrice" min="0" placeholder="Nhập giá tiền" required onChange={handleSurveyChange} />
 
                     <h2>Khi nào hút điếu đầu tiên sau khi ngủ dậy?</h2>
                     <div style={{ textAlign: 'left' }}>
@@ -113,6 +119,8 @@ function Survey() {
                         <label>6-30 phút</label><br />
                         <input type="radio" name="firstSmokeTime" value="after 60 minutes" onChange={handleSurveyChange} />
                         <label>Sau 60 phút</label><br />
+                        <input type="radio" name="firstSmokeTime" value="don't smoke" onChange={handleSurveyChange} />
+                        <label>Tôi không hút vào buổi sáng</label><br />
                     </div>
 
                     <h2>Ngày bạn muốn bắt đầu?</h2>
@@ -164,7 +172,8 @@ const modalContentStyle = {
     backgroundColor: '#ffffff',
     padding: '2rem',
     borderRadius: '10px',
-    width: '35vw',
+    width: '400px',
+    color: 'black'
 };
 
 export default Survey;

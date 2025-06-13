@@ -1,6 +1,7 @@
-import * as icon from 'lucide-react'
+import * as icon from 'lucide-react';
 
 import { useLocation, useNavigate } from 'react-router-dom';
+
 
 function NavBar() {
   const location = useLocation();
@@ -52,10 +53,41 @@ function NavBar() {
   );
 }
 
+function ImprovedCard(props) {
+  const isPositive = props.percentageChange >= 0;
+  const percentageText = `${isPositive ? '+' : ''}${props.percentageChange}%`;
+
+  return (
+    <div className="pulse-card">
+      <div className="pulse-header">
+        <div className="pulse-title">
+          <span className="pulse-icon"><props.Icon></props.Icon></span>
+          <span><strong>{props.title}</strong></span>
+        </div>
+        <div className={`pulse-change ${isPositive ? 'positive' : 'negative'}`}>{percentageText}</div>
+      </div>
+
+      <div className="pulse-value">{props.value} {props.unit}</div>
+
+      <div className="pulse-bar">
+        <div className="pulse-bar-fill" style={{ width: `${props.progress}%` }}></div>
+      </div>
+    </div>
+  );
+}
+
 function DashBoard() {
     return (
         <>
         <NavBar></NavBar>
+        <div id='dashBoard'>
+          <h2 style={{textAlign:'left'}}><strong>Tổng Quan</strong></h2>
+          <h3 style={{textAlign:'left'}}>Cải thiện sức khỏe của bạn</h3>
+          <div className='ImprovedCardContainer'>
+            <ImprovedCard percentageChange = "10" title="Pulse Rate" Icon={icon.Heart} value={10} unit="bpm" progress={80}></ImprovedCard>
+          </div>
+        </div>
+        
         </>
     )
 }

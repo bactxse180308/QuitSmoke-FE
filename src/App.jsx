@@ -9,6 +9,8 @@ import Ranking from './ranking.jsx';
 import Coach from './coach.jsx';
 import Achievement from './achievement.jsx';
 import ServicePackage from './ServicePackage.jsx';
+import Login from './login.jsx';
+import PrivateRoute from './PrivateRoute.jsx';
 
 function App() {
 
@@ -18,13 +20,17 @@ function App() {
       <Routes>
         <Route path='/survey' element={<Survey/>}/>
         <Route path='/' element={<HomePage/>}/>
-        <Route path='dashboard' element={<DashBoard/>} />
+        <Route path='/dashboard' element={
+                        <PrivateRoute>
+                            <DashBoard />
+                        </PrivateRoute>} />
         <Route path='diary' element={<Diary/>} />
         <Route path='missions' element={<Missions/>} />
         <Route path='ranking' element={<Ranking/>} />
         <Route path='achievement' element={<Achievement/>} />
         <Route path='service-package' element={<ServicePackage/>} />
         <Route path='coach' element={<Coach/>} />
+        <Route path='login' element={<Login/>} />
       </Routes>
     </BrowserRouter>
     
