@@ -24,8 +24,8 @@ function Diary() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [diaryEntries, setDiaryEntries] = useState([]);
 const [formData, setFormData] = useState({
-  date: new Date().toISOString().split("T")[0],
-  smokedToday: "no",               // radio button
+  logDate: new Date().toISOString().split("T")[0],
+  smokedToday: "false",               // radio button
   cravingLevel: 1,                 // range slider
   stressLevel: 1,                  // range slider
   mood: "neutral",                 // select option
@@ -33,26 +33,26 @@ const [formData, setFormData] = useState({
   spentMoneyOnCigarettes: 0       // number input
 });
 
-  const [userID, setUserID] = useState("");
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
   const fetchDiaryEntries = async () => {
     try {
       const user = await fetch("http://localhost:8080/api/auth/get-session-user", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  credentials: "include" // gửi cookie (session) nếu dùng Spring Boot hoặc Express session
-});
+        method: "POST",
+        headers: {
+        "Content-Type": "application/json"
+        },
+      credentials: "include" // gửi cookie (session) nếu dùng Spring Boot hoặc Express session
+    });
       if (!user) {
         console.error("Không tìm thấy user");
         return;
       } else {
         const userData = await user.json();
-        const userID = userData.userID; // Lấy ID người dùng từ dữ liệu trả về
-        setUserID(userID); // Lưu ID người dùng vào state
-      const response = await fetch(`http://localhost:8080/api/user-daily-logs?userId=${userID}`);
+        const userId = userData.userId; // Lấy ID người dùng từ dữ liệu trả về
+        setUserId(userId); // Lưu ID người dùng vào state
+      const response = await fetch(`http://localhost:8080/api/user-daily-logs/get-daily-logs/${userId}`);
       if (!response.ok) throw new Error("Lỗi khi tải dữ liệu nhật ký");
 
       const data = await response.json();
@@ -75,7 +75,6 @@ const [formData, setFormData] = useState({
     }
   }, [isModalOpen]);
 
-  console.log("userID:", userID); // Kiểm tra xem userID đã được gán đúng chưa
 
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
@@ -87,7 +86,7 @@ const [formData, setFormData] = useState({
   const handleSubmit = async (e) => {
   e.preventDefault();
   const dataToSend = {
-    userID,
+    userId,
     ...formData,
   };
   try {
@@ -98,15 +97,13 @@ const [formData, setFormData] = useState({
       },
       body: JSON.stringify(dataToSend),
     });
-    console.log("formData:", dataToSend); // Kiểm tra dữ liệu gửi đi
 
     if (!response.ok) {
-      console.log(dataToSend);
       throw new Error("Lỗi khi gửi nhật ký");
     }
 
     // Sau khi gửi thành công, gọi lại GET để cập nhật danh sách
-    const updated = await fetch('http://localhost:8080/api/user-daily-logs');
+    const updated = await fetch(`http://localhost:8080/api/user-daily-logs/get-daily-logs/${userId}`);
     const updatedData = await updated.json();
     setDiaryEntries(updatedData);
 
@@ -115,8 +112,8 @@ const [formData, setFormData] = useState({
 
 
     setFormData({
-      date: new Date().toISOString().split("T")[0],
-      smokedToday: "no",               // radio button
+      logDate: new Date().toISOString().split("T")[0],
+      smokedToday: "false",               // radio button
       cravingLevel: 1,                 // range slider
       stressLevel: 1,                  // range slider
       mood: "neutral",                 // select option
@@ -149,10 +146,10 @@ const [formData, setFormData] = useState({
           ) : (
             <div className="dry-history-list">
               {diaryEntries.map((entry) => (
-                <div key={entry.id} className="dry-history-item">
+                <div key={entry.logID} className="dry-history-item">
                   <div className="dry-history-details">
                     <p className="dry-history-text">
-                      <span className="dry-history-date">{new Date(entry.date).toLocaleDateString("vi-VN", {
+                      <span className="dry-history-date">{new Date(entry.logDate).toLocaleDateString("vi-VN", {
                         day: "2-digit",
                         month: "2-digit",
                         year: "numeric",
@@ -161,7 +158,7 @@ const [formData, setFormData] = useState({
                     <p className="dry-history-text">
                       <span className="dry-history-label">Hút thuốc:</span>
                       <span className="dry-history-value" style={{ color: entry.smoked === "yes" ? "#ef4444" : "#10b981", fontWeight: 'bold' }}>
-                        {entry.smoked === "yes" ? "Có" : "Không"}
+                        {entry.smokedToday === "true" ? "Có" : "Không"}
                       </span>
                     </p>
                     <p className="dry-history-text">
@@ -169,16 +166,16 @@ const [formData, setFormData] = useState({
                       <span className="dry-history-value">{entry.cravingLevel}/10</span>
                     </p>
                     <p className="dry-history-text">
-                      <span className="dry-history-label">Số lần thèm:</span>
-                      <span className="dry-history-value">{entry.cravingTimes} lần</span>
+                      <span className="dry-history-label">Mức độ căng thẳng:</span>
+                      <span className="dry-history-value">{entry.stressLevel}/10</span>
                     </p>
                     <p className="dry-history-text">
                       <span className="dry-history-label">Chi phí NRT:</span>
-                      <span className="dry-history-value">{entry.nrtCost.toLocaleString()} VNĐ</span>
+                      <span className="dry-history-value">{entry.spentMoneyOnCigarettes} VNĐ</span>
                     </p>
                   </div>
                   <p className="dry-history-time">
-                    {new Date(entry.id).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                    {new Date(entry.logDate).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
                   </p>
                 </div>
               ))}
@@ -197,12 +194,12 @@ const [formData, setFormData] = useState({
             <h2 className="dry-modal-title">Nhật ký hôm nay</h2>
             <form onSubmit={handleSubmit}>
               <div className="dry-modal-field">
-                <label className="dry-modal-label" htmlFor="date">Ngày</label>
+                <label className="dry-modal-label" htmlFor="logDate">Ngày</label>
                 <input
-                  id="date"
+                  id="logDate"
                   type="date"
-                  name="date"
-                  value={formData.date}
+                  name="logDate"
+                  value={formData.logDate}
                   onChange={handleInputChange}
                   className="dry-modal-input"
                   required
@@ -216,8 +213,8 @@ const [formData, setFormData] = useState({
                     <input
                       type="radio"
                       name="smokedToday"
-                      value="no"
-                      checked={formData.smokedToday === "no"}
+                      value="false"
+                      checked={formData.smokedToday === "false"}
                       onChange={handleInputChange}
                     />
                     <span className="dry-modal-radio-custom">Không</span>
@@ -226,8 +223,8 @@ const [formData, setFormData] = useState({
                     <input
                       type="radio"
                       name="smokedToday"
-                      value="yes"
-                      checked={formData.smokedToday === "yes"}
+                      value="true"
+                      checked={formData.smokedToday === "true"}
                       onChange={handleInputChange}
                     />
                     <span className="dry-modal-radio-custom">Có</span>
@@ -294,7 +291,7 @@ const [formData, setFormData] = useState({
                 </div>
               </div>
 
-              <div className="dry-modal-field" hidden={formData.smokedToday === "no"}>
+              <div className="dry-modal-field" hidden={formData.smokedToday === "false"}>
                 <label className="dry-modal-label" htmlFor="cigarettesSmoked">Số điếu thuốc hút trong ngày</label>
                 <input
                   id="cigarettesSmoked"
