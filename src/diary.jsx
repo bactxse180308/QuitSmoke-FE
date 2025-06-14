@@ -23,48 +23,48 @@ const CloseIcon = () => (
 function Diary() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [diaryEntries, setDiaryEntries] = useState([]);
-const [formData, setFormData] = useState({
-  logDate: new Date().toISOString().split("T")[0],
-  smokedToday: "false",               // radio button
-  cravingLevel: 1,                 // range slider
-  stressLevel: 1,                  // range slider
-  mood: "neutral",                 // select option
-  cigarettesSmoked: 0,            // number input, chỉ hiện nếu hút
-  spentMoneyOnCigarettes: 0       // number input
-});
+  const [formData, setFormData] = useState({
+    logDate: new Date().toISOString().slice(0, 19), // "YYYY-MM-DDTHH:mm"
+    smokedToday: "false",
+    cravingLevel: 1,
+    stressLevel: 1,
+    mood: "neutral",
+    cigarettesSmoked: 0,
+    spentMoneyOnCigarettes: 0
+  });
 
   const [userId, setUserId] = useState("");
 
   useEffect(() => {
-  const fetchDiaryEntries = async () => {
-    try {
-      const user = await fetch("http://localhost:8080/api/auth/get-session-user", {
-        method: "POST",
-        headers: {
-        "Content-Type": "application/json"
-        },
-      credentials: "include" // gửi cookie (session) nếu dùng Spring Boot hoặc Express session
-    });
-      if (!user) {
-        console.error("Không tìm thấy user");
-        return;
-      } else {
-        const userData = await user.json();
-        const userId = userData.userId; // Lấy ID người dùng từ dữ liệu trả về
-        setUserId(userId); // Lưu ID người dùng vào state
-      const response = await fetch(`http://localhost:8080/api/user-daily-logs/get-daily-logs/${userId}`);
-      if (!response.ok) throw new Error("Lỗi khi tải dữ liệu nhật ký");
+    const fetchDiaryEntries = async () => {
+      try {
+        const user = await fetch("http://localhost:8080/api/auth/get-session-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include" // gửi cookie (session) nếu dùng Spring Boot hoặc Express session
+        });
+        if (!user) {
+          console.error("Không tìm thấy user");
+          return;
+        } else {
+          const userData = await user.json();
+          const userId = userData.userId; // Lấy ID người dùng từ dữ liệu trả về
+          setUserId(userId); // Lưu ID người dùng vào state
+          const response = await fetch(`http://localhost:8080/api/user-daily-logs/get-daily-logs/${userId}`);
+          if (!response.ok) throw new Error("Lỗi khi tải dữ liệu nhật ký");
 
-      const data = await response.json();
-      setDiaryEntries(data);
+          const data = await response.json();
+          setDiaryEntries(data);
+        }
+      } catch (error) {
+        console.error("Fetch diary entries error:", error);
       }
-    } catch (error) {
-      console.error("Fetch diary entries error:", error);
-    }
-  };
+    };
 
-  fetchDiaryEntries();
-}, []);
+    fetchDiaryEntries();
+  }, []);
 
   // Ngăn cuộn trang nền khi modal mở
   useEffect(() => {
@@ -84,47 +84,48 @@ const [formData, setFormData] = useState({
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  const dataToSend = {
-    userId,
-    ...formData,
-  };
-  try {
-    const response = await fetch('http://localhost:8080/api/user-daily-logs/create-daily-logs', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(dataToSend),
-    });
+    e.preventDefault();
+    const dataToSend = {
+      userId,
+      ...formData,
+    };
+    console.log(dataToSend);
+    try {
+      const response = await fetch('http://localhost:8080/api/user-daily-logs/create-daily-logs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      });
 
-    if (!response.ok) {
-      throw new Error("Lỗi khi gửi nhật ký");
+      if (!response.ok) {
+        throw new Error("Lỗi khi gửi nhật ký");
+      }
+
+      // Sau khi gửi thành công, gọi lại GET để cập nhật danh sách
+      const updated = await fetch(`http://localhost:8080/api/user-daily-logs/get-daily-logs/${userId}`);
+      const updatedData = await updated.json();
+      setDiaryEntries(updatedData);
+
+      // Đóng modal và reset form
+      setIsModalOpen(false);
+
+
+      setFormData({
+        logDate: new Date().toISOString().slice(0, 19),
+        smokedToday: "false",
+        cravingLevel: 1,
+        stressLevel: 1,
+        mood: "neutral",
+        cigarettesSmoked: 0,
+        spentMoneyOnCigarettes: 0
+      });
+    } catch (error) {
+      console.error("Lỗi khi lưu nhật ký:", error);
+      alert("Đã xảy ra lỗi khi gửi nhật ký. Vui lòng thử lại.");
     }
-
-    // Sau khi gửi thành công, gọi lại GET để cập nhật danh sách
-    const updated = await fetch(`http://localhost:8080/api/user-daily-logs/get-daily-logs/${userId}`);
-    const updatedData = await updated.json();
-    setDiaryEntries(updatedData);
-
-    // Đóng modal và reset form
-    setIsModalOpen(false);
-
-
-    setFormData({
-      logDate: new Date().toISOString().split("T")[0],
-      smokedToday: "false",               // radio button
-      cravingLevel: 1,                 // range slider
-      stressLevel: 1,                  // range slider
-      mood: "neutral",                 // select option
-      cigarettesSmoked: 0,            // number input, chỉ hiện nếu hút
-      spentMoneyOnCigarettes: 0 
-    });
-  } catch (error) {
-    console.error("Lỗi khi lưu nhật ký:", error);
-    alert("Đã xảy ra lỗi khi gửi nhật ký. Vui lòng thử lại.");
-  }
-};
+  };
 
 
   return (
@@ -188,16 +189,16 @@ const [formData, setFormData] = useState({
       {isModalOpen && (
         <div className="dry-modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="dry-modal-content" onClick={(e) => e.stopPropagation()}>
-             <button className="dry-modal-close-button" onClick={() => setIsModalOpen(false)}>
-                <CloseIcon />
+            <button className="dry-modal-close-button" onClick={() => setIsModalOpen(false)}>
+              <CloseIcon />
             </button>
             <h2 className="dry-modal-title">Nhật ký hôm nay</h2>
             <form onSubmit={handleSubmit}>
               <div className="dry-modal-field">
-                <label className="dry-modal-label" htmlFor="logDate">Ngày</label>
+                <label className="dry-modal-label" htmlFor="logDate">Ngày & giờ ghi nhật ký</label>
                 <input
                   id="logDate"
-                  type="date"
+                  type="datetime-local"
                   name="logDate"
                   value={formData.logDate}
                   onChange={handleInputChange}
@@ -234,60 +235,60 @@ const [formData, setFormData] = useState({
 
               <div className="dry-modal-field">
                 <label className="dry-modal-label" htmlFor="cravingLevel">Tâm trạng</label>
-                 <div className="dry-modal-select">
-                    <select
-                      id="mood"
-                      type=""
-                      name="mood"
-                      min="1"
-                      max="10"
-                      value={formData.mood}
-                      onChange={handleInputChange}
-                      className="dry-modal-input"
-                    >
-                      <option value="happy">Vui vẻ</option>
-                      <option value="relaxed">Thư giãn</option>
-                      <option value="neutral">Bình thường</option>
-                      <option value="sad">Buồn bã</option>
-                      <option value="angry">Tức giận</option>
-                      <option value="anxious">Lo lắng</option>
-                      <option value="bored">Chán nản</option>
-                      <option value="tired">Mệt mỏi</option>
-                    </select>
+                <div className="dry-modal-select">
+                  <select
+                    id="mood"
+                    type=""
+                    name="mood"
+                    min="1"
+                    max="10"
+                    value={formData.mood}
+                    onChange={handleInputChange}
+                    className="dry-modal-input"
+                  >
+                    <option value="happy">Vui vẻ</option>
+                    <option value="relaxed">Thư giãn</option>
+                    <option value="neutral">Bình thường</option>
+                    <option value="sad">Buồn bã</option>
+                    <option value="angry">Tức giận</option>
+                    <option value="anxious">Lo lắng</option>
+                    <option value="bored">Chán nản</option>
+                    <option value="tired">Mệt mỏi</option>
+                  </select>
                 </div>
               </div>
 
               <div className="dry-modal-field">
                 <label className="dry-modal-label" htmlFor="cravingLevel">Mức độ thèm thuốc</label>
-                 <div className="dry-modal-range-container">
-                    <input
-                      id="cravingLevel"
-                      type="range"
-                      name="cravingLevel"
-                      min="1"
-                      max="10"
-                      value={formData.cravingLevel}
-                      onChange={handleInputChange}
-                      className="dry-modal-range"
-                    />
-                    <span className="dry-modal-range-value">{formData.cravingLevel}</span>
+                <div className="dry-modal-range-container">
+                  <input
+                    id="cravingLevel"
+                    type="range"
+                    name="cravingLevel"
+                    min="1"
+                    max="10"
+                    value={formData.cravingLevel}
+                    onChange={handleInputChange}
+                    className="dry-modal-range"
+                  />
+                  <span className="dry-modal-range-value">{formData.cravingLevel}</span>
                 </div>
               </div>
 
               <div className="dry-modal-field">
                 <label className="dry-modal-label" htmlFor="stressLevel">Mức độ căng thẳng</label>
-                 <div className="dry-modal-range-container">
-                    <input
-                      id="stressLevel"
-                      type="range"
-                      name="stressLevel"
-                      min="1"
-                      max="10"
-                      value={formData.stressLevel}
-                      onChange={handleInputChange}
-                      className="dry-modal-range"
-                    />
-                    <span className="dry-modal-range-value">{formData.stressLevel}</span>
+                <div className="dry-modal-range-container">
+                  <input
+                    id="stressLevel"
+                    type="range"
+                    name="stressLevel"
+                    min="1"
+                    max="10"
+                    value={formData.stressLevel}
+                    onChange={handleInputChange}
+                    className="dry-modal-range"
+                  />
+                  <span className="dry-modal-range-value">{formData.stressLevel}</span>
                 </div>
               </div>
 
