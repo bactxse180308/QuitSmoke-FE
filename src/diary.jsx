@@ -157,8 +157,8 @@ const [formData, setFormData] = useState({
                     </p>
                     <p className="dry-history-text">
                       <span className="dry-history-label">Hút thuốc:</span>
-                      <span className="dry-history-value" style={{ color: entry.smoked === "yes" ? "#ef4444" : "#10b981", fontWeight: 'bold' }}>
-                        {entry.smokedToday === "true" ? "Có" : "Không"}
+                      <span className="dry-history-value" style={{ color: entry.smokedToday === true ? "#ef4444" : "#10b981", fontWeight: 'bold' }}>
+                        {entry.smokedToday === true ? "Có" : "Không"}
                       </span>
                     </p>
                     <p className="dry-history-text">
