@@ -2,6 +2,7 @@ import * as icon from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { SiOxygen } from "react-icons/si";
+import axios from 'axios';
 
 function NavBar() {
   const location = useLocation();
@@ -61,7 +62,6 @@ function NavBar() {
     setIsNotificationOpen(!isNotificationOpen);
   };
 
-  // --- HÀM XỬ LÝ CLICK ĐÃ ĐƯỢC CẢI TIẾN ---
   const handleItemClick = (notification) => {
     // 1. Đánh dấu đã đọc
     setNotifications(prev =>
@@ -100,6 +100,57 @@ function NavBar() {
     transition: 'all 0.2s ease-in-out',
   });
 
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const fetchUserEntries = async () => {
+      try {
+        const user = await fetch("http://localhost:8080/api/auth/get-session-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include" // gửi cookie (session) nếu dùng Spring Boot hoặc Express session
+        });
+        if (!user) {
+          console.error("Không tìm thấy user");
+          return;
+        } else {
+          const userData = await user.json();
+          setUserName(userData.name)
+        }
+      } catch (error) {
+        console.error("Fetch diary entries error:", error);
+      }
+    };
+    fetchUserEntries();
+  }, []);
+
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef();
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+  try {
+    await axios.post('http://localhost:8080/api/auth/logout', {}, { withCredentials: true }); // Quan trọng: Gửi cookie
+
+    navigate('/');
+  } catch (error) {
+    console.error('Logout thất bại:', error);
+    alert('Đăng xuất không thành công, vui lòng thử lại.');
+  }
+};
+
+
   return (
     <div
       className="nav-bar"
@@ -114,16 +165,63 @@ function NavBar() {
       <h3><strong>QuitSmoking</strong></h3>
       <h4 style={navItemStyle('/dashboard')} onClick={() => navigate('/dashboard')}>Tổng quan</h4>
       <h4 style={navItemStyle('/diary')} onClick={() => navigate('/diary')}>Nhật ký</h4>
-      <h4 style={navItemStyle('/missions')} onClick={() => navigate('/missions')}>Nhiệm vụ</h4> 
+      <h4 style={navItemStyle('/missions')} onClick={() => navigate('/missions')}>Nhiệm vụ</h4>
       <h4 style={navItemStyle('/ranking')} onClick={() => navigate('/ranking')}>Bảng xếp hạng</h4>
       <h4 style={navItemStyle('/Achievement')} onClick={() => navigate('/Achievement')}>Thành tựu</h4>
       <h4 style={navItemStyle('/service-package')} onClick={() => navigate('/service-package')}>Gói dịch vụ</h4>
       <h4 style={navItemStyle('/coach')} onClick={() => navigate('/coach')}>Chuyên gia</h4>
-      <h4 style={navItemStyle('/blog')} onClick={() => navigate('/blog')}>bài viết</h4> 
-      <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
-        <icon.User />
-        <h4 style={{ marginLeft: 5 }}>Người dùng</h4>
+      <h4 style={navItemStyle('/blog')} onClick={() => navigate('/blog')}>bài viết</h4>
+      <div style={{ position: 'relative', marginLeft: 'auto' }} ref={userMenuRef}>
+        <div
+          style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+          onClick={() => setUserMenuOpen(prev => !prev)}
+        >
+          <icon.User />
+          <h4 style={{ marginLeft: 5 }}>{userName}</h4>
+        </div>
+
+        {userMenuOpen && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 10px)',
+              right: 0,
+              background: '#fff',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              borderRadius: '8px',
+              zIndex: 1000,
+              minWidth: '160px',
+              padding: '8px 0',
+            }}
+          >
+            <div
+              onClick={() => navigate('/profile')}
+              style={{
+                padding: '10px 16px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                color: '#1f2937',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Thông tin cá nhân
+            </div>
+            <div
+              onClick={handleLogout}
+              style={{
+                padding: '10px 16px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                color: '#ef4444',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Đăng xuất
+            </div>
+          </div>
+        )}
       </div>
+
 
       <div style={{ position: 'relative', marginLeft: 15 }} ref={popupRef}>
         <icon.Bell onClick={handleNotificationClick} style={{ cursor: 'pointer' }} />
@@ -194,10 +292,10 @@ function NavBar() {
                   // Helper nhỏ để lấy icon và style
                   const getIcon = (type) => {
                     const iconStyle = { width: '38px', height: '38px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginRight: '16px' };
-                    if (type === 'achievement') return <div style={{...iconStyle, backgroundColor: '#fffbe6'}}><icon.Trophy size={20} color="#fbbd23" /></div>;
-                    if (type === 'appointment') return <div style={{...iconStyle, backgroundColor: '#eef9ff'}}><icon.Calendar size={20} color="#3b82f6" /></div>;
-                    if (type === 'reminder') return <div style={{...iconStyle, backgroundColor: '#fef2f2'}}><icon.AlarmClock size={20} color="#ef4444" /></div>;
-                    return <div style={{...iconStyle, backgroundColor: '#f3f4f6'}}><icon.Bell size={20} color="#4b5563" /></div>;
+                    if (type === 'achievement') return <div style={{ ...iconStyle, backgroundColor: '#fffbe6' }}><icon.Trophy size={20} color="#fbbd23" /></div>;
+                    if (type === 'appointment') return <div style={{ ...iconStyle, backgroundColor: '#eef9ff' }}><icon.Calendar size={20} color="#3b82f6" /></div>;
+                    if (type === 'reminder') return <div style={{ ...iconStyle, backgroundColor: '#fef2f2' }}><icon.AlarmClock size={20} color="#ef4444" /></div>;
+                    return <div style={{ ...iconStyle, backgroundColor: '#f3f4f6' }}><icon.Bell size={20} color="#4b5563" /></div>;
                   };
 
                   return (
@@ -212,7 +310,7 @@ function NavBar() {
                         borderTop: '1px solid #f0f0f0',
                         backgroundColor: n.read ? '#ffffff' : '#f8fffa' // Nền hơi xanh nhạt khi chưa đọc
                       }}>
-                      
+
                       {/* Thanh dọc màu xanh DYNAMIC: Chỉ hiển thị trên item đầu tiên */}
                       {index === 0 && (
                         <div style={{
@@ -226,7 +324,7 @@ function NavBar() {
                       )}
 
                       {getIcon(n.type)}
-                      
+
                       {/* Nội dung text */}
                       <div style={{ flex: 1, marginRight: '10px' }}>
                         <h5 style={{ margin: 0, fontWeight: '600', color: '#1f2937', fontSize: '15px', lineHeight: '1.4' }}>
@@ -256,7 +354,7 @@ function NavBar() {
                   );
                 })
               ) : (
-                <p style={{textAlign: 'center', padding: '20px', color: '#6b7280'}}>Không có thông báo nào</p>
+                <p style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>Không có thông báo nào</p>
               )}
             </div>
           </div>
@@ -292,22 +390,22 @@ function ImprovedCard(props) {
 }
 
 function DashBoard() {
-    return (
-        <>
-        <NavBar></NavBar>
-        <div id='dashBoard'>
-          <h2 style={{textAlign:'left'}}><strong>Tổng Quan</strong></h2>
-          <h3 style={{textAlign:'left'}}>Cải thiện sức khỏe của bạn</h3>
-          <div className='ImprovedCardContainer'>
-            <ImprovedCard percentageChange = "10" title="Mạch" Icon={icon.Heart} value={10} unit="bpm" progress={80}></ImprovedCard>
-            <ImprovedCard percentageChange = "10" title="Nồng độ Oxy trong máu" Icon={SiOxygen} value={10} unit="bpm" progress={80}/>
-            <ImprovedCard percentageChange = "10" title="Nồng độ Nicotine trong cơ thể" Icon={icon.Cigarette} value={10} unit="bpm" progress={80}/>
-            <ImprovedCard percentageChange = "10" title="Vị giác & thính giác" Icon={icon.Coffee} value={10} unit="bpm" progress={80}/>
-            <ImprovedCard percentageChange = "10" title="Hô hấp" Icon={icon.Wind} value={10} unit="bpm" progress={80}/>
-          </div>
+  return (
+    <>
+      <NavBar></NavBar>
+      <div id='dashBoard'>
+        <h2 style={{ textAlign: 'left' }}><strong>Tổng Quan</strong></h2>
+        <h3 style={{ textAlign: 'left' }}>Cải thiện sức khỏe của bạn</h3>
+        <div className='ImprovedCardContainer'>
+          <ImprovedCard percentageChange="10" title="Mạch" Icon={icon.Heart} value={10} unit="bpm" progress={80}></ImprovedCard>
+          <ImprovedCard percentageChange="10" title="Nồng độ Oxy trong máu" Icon={SiOxygen} value={10} unit="bpm" progress={80} />
+          <ImprovedCard percentageChange="10" title="Nồng độ Nicotine trong cơ thể" Icon={icon.Cigarette} value={10} unit="bpm" progress={80} />
+          <ImprovedCard percentageChange="10" title="Vị giác & thính giác" Icon={icon.Coffee} value={10} unit="bpm" progress={80} />
+          <ImprovedCard percentageChange="10" title="Hô hấp" Icon={icon.Wind} value={10} unit="bpm" progress={80} />
         </div>
-        </>
-    )
+      </div>
+    </>
+  )
 }
 
 export default DashBoard;

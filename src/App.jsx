@@ -12,8 +12,8 @@ import ServicePackage from './ServicePackage.jsx';
 import Login from './login.jsx';
 import PrivateRoute from './PrivateRoute.jsx';
 
-import Blog from './Blog.jsx'; // Đây là trang danh sách
-import ArticleDetail from './ArticleDetail.jsx'; // Đây là trang chi tiết, chúng ta sẽ tạo file nà
+import Blog from './Blog.jsx';
+import ArticleDetail from './ArticleDetail.jsx';
 function App() {
 
   return (
@@ -33,7 +33,8 @@ function App() {
           <Route path='/dashboard' element={
             <PrivateRoute>
               <DashBoard />
-            </PrivateRoute>} />
+            </PrivateRoute>
+          } />
           <Route path='diary' element={
             <PrivateRoute>
               <Diary />
