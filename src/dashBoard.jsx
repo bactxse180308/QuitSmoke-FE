@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { SiOxygen } from "react-icons/si";
 import axios from 'axios';
+import { mockTodayMissionList } from './mock-missions'; // <-- IMPORT NHIỆM VỤ HÔM NAY
 
 function NavBar() {
   const location = useLocation();
@@ -11,67 +12,46 @@ function NavBar() {
   const popupRef = useRef();
 
   const [notifications, setNotifications] = useState([
+    // Dữ liệu ban đầu có thể để trống hoặc chỉ chứa các loại khác
     {
-      id: 1,
-      type: "achievement",
-      title: "Chúc mừng! Bạn đã đạt được thành tựu mới",
+      id: 1, type: "achievement", title: "Chúc mừng! Bạn đã đạt được thành tựu mới",
       description: "Huy hiệu 'Tuần Lễ Vàng' - Hoàn thành 7 ngày không hút thuốc",
-      time: "2 phút trước",
-      read: false,
-      link: '/achievement', // <-- THÊM LINK ĐIỀU HƯỚNG
+      time: "2 phút trước", read: false, link: '/achievement',
     },
     {
-      id: 2,
-      type: "appointment",
-      title: "Lịch hẹn với chuyên gia",
+      id: 2, type: "appointment", title: "Lịch hẹn với chuyên gia",
       description: "Bạn có cuộc hẹn với Dr. Trần Minh Tuấn vào 15:00 ngày mai",
-      time: "1 giờ trước",
-      read: false,
-      link: '/coach', // <-- THÊM LINK ĐIỀU HƯỚNG
-    },
-    {
-      id: 3,
-      type: "reminder",
-      title: "Nhắc nhở hàng ngày",
-      description: "Đã đến lúc uống nước! Hãy uống 1 ly nước để giải độc cơ thể",
-      time: "3 giờ trước",
-      read: false,
-    },
-    {
-      id: 4,
-      type: "mission",
-      title: "Hoàn thành nhiệm vụ",
-      description: "Bạn đã hoàn thành nhiệm vụ 'Tập thể dục 30 phút' hôm nay",
-      time: "5 giờ trước",
-      read: true,
-      link: '/missions' // <-- THÊM LINK ĐIỀU HƯỚNG
-    },
-    {
-      id: 5,
-      type: "reminder",
-      title: "Thời gian thiền",
-      description: "Đã 6 tiếng kể từ lần cuối bạn thiền. Hãy dành 15 phút để thư giãn",
-      time: "6 giờ trước",
-      read: true,
+      time: "1 giờ trước", read: false, link: '/coach',
     },
   ]);
 
+  // --- LOGIC MỚI: TỰ ĐỘNG THÊM THÔNG BÁO NHIỆM VỤ ---
+  useEffect(() => {
+    // Tạo thông báo từ danh sách nhiệm vụ hôm nay
+    const missionNotifications = mockTodayMissionList.map((mission, index) => ({
+      id: 100 + mission.templateId, // Tạo ID duy nhất để không trùng lặp
+      type: 'mission',
+      title: `Nhiệm vụ mới: ${mission.title}`,
+      description: 'Hãy hoàn thành mục tiêu hôm nay để tiến gần hơn đến thành công!',
+      time: 'Sáng nay',
+      read: false, // Mặc định là chưa đọc
+      link: '/missions',
+    }));
+
+    // Thêm thông báo nhiệm vụ vào đầu danh sách
+    setNotifications(prev => [...missionNotifications, ...prev]);
+  }, []); // Chỉ chạy một lần khi component được mount
+
+
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const handleNotificationClick = () => {
-    setIsNotificationOpen(!isNotificationOpen);
-  };
+  const handleNotificationClick = () => setIsNotificationOpen(!isNotificationOpen);
 
   const handleItemClick = (notification) => {
-    // 1. Đánh dấu đã đọc
-    setNotifications(prev =>
-      prev.map(n => (n.id === notification.id ? { ...n, read: true } : n))
-    );
-
-    // 2. Nếu có link, điều hướng đến đó
+    setNotifications(prev => prev.map(n => (n.id === notification.id ? { ...n, read: true } : n)));
     if (notification.link) {
       navigate(notification.link);
-      setIsNotificationOpen(false); // Đóng popup sau khi điều hướng
+      setIsNotificationOpen(false);
     }
   };
 
@@ -84,6 +64,10 @@ function NavBar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  
+  // ... Các phần code khác của NavBar giữ nguyên ...
+  // (Phần style, fetch user, menu logout, và JSX return)
+  // ... (Bạn có thể copy paste phần code còn lại của NavBar vào đây) ...
 
   const isActive = (path) => location.pathname === path || (path === '/achievement' && location.pathname.startsWith('/achievement'));
 
@@ -295,6 +279,8 @@ function NavBar() {
                     if (type === 'achievement') return <div style={{ ...iconStyle, backgroundColor: '#fffbe6' }}><icon.Trophy size={20} color="#fbbd23" /></div>;
                     if (type === 'appointment') return <div style={{ ...iconStyle, backgroundColor: '#eef9ff' }}><icon.Calendar size={20} color="#3b82f6" /></div>;
                     if (type === 'reminder') return <div style={{ ...iconStyle, backgroundColor: '#fef2f2' }}><icon.AlarmClock size={20} color="#ef4444" /></div>;
+                    // --- THÊM ICON CHO MISSION ---
+                    if (type === 'mission') return <div style={{ ...iconStyle, backgroundColor: '#eef2ff' }}><icon.Target size={20} color="#4f46e5" /></div>;
                     return <div style={{ ...iconStyle, backgroundColor: '#f3f4f6' }}><icon.Bell size={20} color="#4b5563" /></div>;
                   };
 
@@ -303,33 +289,17 @@ function NavBar() {
                       onClick={() => handleItemClick(n)}
                       style={{
                         display: 'flex',
-                        alignItems: 'flex-start', // Canh lề trên
+                        alignItems: 'flex-start',
                         padding: '16px 20px',
                         cursor: 'pointer',
                         position: 'relative',
                         borderTop: '1px solid #f0f0f0',
-                        backgroundColor: n.read ? '#ffffff' : '#f8fffa' // Nền hơi xanh nhạt khi chưa đọc
+                        backgroundColor: n.read ? '#ffffff' : '#f8fffa'
                       }}>
-
-                      {/* Thanh dọc màu xanh DYNAMIC: Chỉ hiển thị trên item đầu tiên */}
-                      {index === 0 && (
-                        <div style={{
-                          position: 'absolute',
-                          left: 0,
-                          top: 0,
-                          bottom: 0,
-                          width: '4px',
-                          backgroundColor: '#3b82f6', // Màu xanh dương
-                        }}></div>
-                      )}
-
                       {getIcon(n.type)}
-
-                      {/* Nội dung text */}
                       <div style={{ flex: 1, marginRight: '10px' }}>
                         <h5 style={{ margin: 0, fontWeight: '600', color: '#1f2937', fontSize: '15px', lineHeight: '1.4' }}>
-                          {/* Sửa title cho khớp ảnh */}
-                          {n.title.length > 30 ? n.title.substring(0, 30) + '...' : n.title}
+                          {n.title}
                         </h5>
                         <p style={{ margin: '4px 0 8px 0', color: '#4b5563', fontSize: '14px', lineHeight: '1.5' }}>
                           {n.description}
@@ -338,8 +308,6 @@ function NavBar() {
                           {n.time}
                         </small>
                       </div>
-
-                      {/* Chấm xanh cho thông báo chưa đọc */}
                       {!n.read && (
                         <div style={{
                           width: '8px',
@@ -347,7 +315,7 @@ function NavBar() {
                           backgroundColor: '#3b82f6',
                           borderRadius: '50%',
                           flexShrink: 0,
-                          marginTop: '6px' // Canh cho nó thẳng hàng với title
+                          marginTop: '6px'
                         }}></div>
                       )}
                     </div>
@@ -360,14 +328,12 @@ function NavBar() {
           </div>
         )}
       </div>
-
-
       <icon.MessageCircle style={{ marginLeft: 15 }} />
     </div>
   );
 }
 
-// ... Phần còn lại của Dashboard.jsx giữ nguyên ...
+// ... Các phần code khác của Dashboard.jsx giữ nguyên ...
 function ImprovedCard(props) {
   const isPositive = props.percentageChange >= 0;
   const percentageText = `${isPositive ? '+' : ''}${props.percentageChange}%`;
@@ -407,6 +373,7 @@ function DashBoard() {
     </>
   )
 }
+
 
 export default DashBoard;
 export { NavBar };
