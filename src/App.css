@@ -1078,6 +1078,7 @@ Footer {
 
 #dashBoard .ImprovedCardContainer {
   display: flex;
+  margin: 30px;
 }
 
 /* CSS FILE ACHIEVEMENT */
@@ -1441,3 +1442,98 @@ Footer {
     color: #fff; /* Ghi đè để đảm bảo chữ trắng */
 }
 /* Mission END HERE */
+#savedMoney
+/* Container */
+.savings-container {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+  background-color: #fff;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: sans-serif;
+}
+
+#savedMoney .savings-content {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+#savedMoney .label {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+#savedMoney .value {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+#savedMoney .green { color: #16a34a; }
+#savedMoney .blue { color: #2563eb; }
+#savedMoney .red { color: #dc2626; }
+#savedMoney .orange { color: #f97316; }
+
+#savedMoney .detail-button {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  width: fit-content;
+  color: #000000;
+}
+
+/* Modal */
+#savedMoney .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+#savedMoney .modal {
+  background: white;
+  border-radius: 10px;
+  width: 550px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+#savedMoney .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#savedMoney .modal-body {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+#savedMoney .modal-left, .modal-right {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#savedMoney .close-btn {
+  background: none;
+  border: 2px solid #000000;
+  padding: 0.2rem;
+  font-size: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #000000;
+  border-radius: 10px;
+}

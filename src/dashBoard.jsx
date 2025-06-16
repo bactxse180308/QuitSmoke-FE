@@ -64,7 +64,7 @@ function NavBar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  
+
   // ... Các phần code khác của NavBar giữ nguyên ...
   // (Phần style, fetch user, menu logout, và JSX return)
   // ... (Bạn có thể copy paste phần code còn lại của NavBar vào đây) ...
@@ -124,15 +124,15 @@ function NavBar() {
   }, []);
 
   const handleLogout = async () => {
-  try {
-    await axios.post('http://localhost:8080/api/auth/logout', {}, { withCredentials: true }); // Quan trọng: Gửi cookie
+    try {
+      await axios.post('http://localhost:8080/api/auth/logout', {}, { withCredentials: true }); // Quan trọng: Gửi cookie
 
-    navigate('/');
-  } catch (error) {
-    console.error('Logout thất bại:', error);
-    alert('Đăng xuất không thành công, vui lòng thử lại.');
-  }
-};
+      navigate('/');
+    } catch (error) {
+      console.error('Logout thất bại:', error);
+      alert('Đăng xuất không thành công, vui lòng thử lại.');
+    }
+  };
 
 
   return (
@@ -351,11 +351,134 @@ function ImprovedCard(props) {
       <div className="pulse-bar">
         <div className="pulse-bar-fill" style={{ width: `${props.progress}%` }}></div>
       </div>
+      <div className="pulse-value">{props.timeRemaining}</div>
     </div>
   );
 }
 
+function improvedList() {
+  const [userId, setUserId] = useState("");
+  const [healthList, setHealthList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Lấy userId
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/auth/get-session-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include"
+        });
+
+        if (!res.ok) throw new Error("Không tìm thấy user");
+
+        const userData = await res.json();
+        setUserId(userData.userId);
+      } catch (error) {
+        console.error("Lỗi khi lấy user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  // Lấy health milestone
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchProgress = async () => {
+      try {
+        const res = await fetch(`http://localhost:8080/api/health-milestones/progress/${userId}`);
+        if (!res.ok) throw new Error("Lỗi khi fetch progress");
+        const data = await res.json();
+        setHealthList(data);
+      } catch (error) {
+        console.error("Lỗi khi gọi API:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProgress();
+  }, [userId]);
+
+  console.log(healthList);
+
+  return { healthList, loading };
+}
+
+
+function SavingsCardWithDetail(props) {
+  const [showModal, setShowModal] = useState(false);
+
+  const handleOpen = () => setShowModal(true);
+  const handleClose = () => setShowModal(false);
+
+  return (
+    <>
+      {/* Card chính */}
+      <div className="savings-container">
+        <h3>Số tiền tiết kiệm</h3>
+        <div className="savings-content">
+          <div className="savings-left">
+            <p className="label">Số tiền đã tiết kiệm</p>
+            <p className="value green">{props.savedMoney} đ</p>
+            <button className="detail-button" onClick={handleOpen}>Xem chi tiết</button>
+          </div>
+          <div className="savings-right">
+            <p className="label">Tiết kiệm trong 1 năm</p>
+            <p className="value blue">{props.savedMoneyOneYear} đ</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h4>Chi tiết số tiền</h4>
+              <icon.X className="close-btn" onClick={handleClose}></icon.X>
+            </div>
+            <div className="modal-body">
+              <div className="modal-left">
+                <p><strong>Số tiền tiết kiệm được</strong></p>
+                <p className="green">{props.savedMoney} đ</p>
+
+                <p>Đã tiêu cho thuốc lá</p>
+                <p className="red">0 đ</p>
+
+                <p>Đã tiêu cho liệu pháp thay thế Nicotine</p>
+                <p className="orange">{props.moneyForNRT} đ</p>
+              </div>
+              <div className="modal-right">
+                <p><strong>Mỗi ngày</strong></p>
+                <p>{props.savedMoneyPerDay} đ</p>
+
+                <p><strong>Mỗi tuần</strong></p>
+                <p>{props.savedMoneyPerWeek} đ</p>
+
+                <p><strong>Mỗi tháng</strong></p>
+                <p>{props.savedMoneyPerMonth} đ</p>
+
+                <p><strong>Mỗi năm</strong></p>
+                <p>{props.savedMoneyPerYear} đ</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+
 function DashBoard() {
+  const { healthList, loading } = improvedList();
+
+  if (loading) return <p>Đang tải dữ liệu...</p>;
+
   return (
     <>
       <NavBar></NavBar>
@@ -363,12 +486,32 @@ function DashBoard() {
         <h2 style={{ textAlign: 'left' }}><strong>Tổng Quan</strong></h2>
         <h3 style={{ textAlign: 'left' }}>Cải thiện sức khỏe của bạn</h3>
         <div className='ImprovedCardContainer'>
-          <ImprovedCard percentageChange="10" title="Mạch" Icon={icon.Heart} value={10} unit="bpm" progress={80}></ImprovedCard>
-          <ImprovedCard percentageChange="10" title="Nồng độ Oxy trong máu" Icon={SiOxygen} value={10} unit="bpm" progress={80} />
-          <ImprovedCard percentageChange="10" title="Nồng độ Nicotine trong cơ thể" Icon={icon.Cigarette} value={10} unit="bpm" progress={80} />
-          <ImprovedCard percentageChange="10" title="Vị giác & thính giác" Icon={icon.Coffee} value={10} unit="bpm" progress={80} />
-          <ImprovedCard percentageChange="10" title="Hô hấp" Icon={icon.Wind} value={10} unit="bpm" progress={80} />
+          <ImprovedCard percentageChange={healthList[0].progressPercent} timeRemaining={healthList[0].timeRemaining} title={healthList[0].name} Icon={icon.Heart} value={healthList[0].progressPercent} unit="%" progress={healthList[0].progressPercent}></ImprovedCard>
+          <ImprovedCard percentageChange={healthList[1].progressPercent} timeRemaining={healthList[1].timeRemaining} title={healthList[1].name} Icon={SiOxygen} value={healthList[1].progressPercent} unit="%" progress={healthList[1].progressPercent} />
+          <ImprovedCard percentageChange={healthList[2].progressPercent} timeRemaining={healthList[2].timeRemaining} title={healthList[2].name} Icon={SiOxygen} value={healthList[2].progressPercent} unit="%" progress={healthList[2].progressPercent} />
+          <ImprovedCard percentageChange={healthList[3].progressPercent} timeRemaining={healthList[3].timeRemaining} title={healthList[3].name} Icon={SiOxygen} value={healthList[3].progressPercent} unit="%" progress={healthList[3].progressPercent} />
+          <ImprovedCard percentageChange={healthList[4].progressPercent} timeRemaining={healthList[4].timeRemaining} title={healthList[4].name} Icon={SiOxygen} value={healthList[4].progressPercent} unit="%" progress={healthList[4].progressPercent} />
         </div>
+
+        <div className='ImprovedCardContainer'>
+          
+          <ImprovedCard percentageChange={healthList[5].progressPercent} timeRemaining={healthList[5].timeRemaining} title={healthList[5].name} Icon={SiOxygen} value={healthList[5].progressPercent} unit="%" progress={healthList[5].progressPercent} />
+          <ImprovedCard percentageChange={healthList[6].progressPercent} timeRemaining={healthList[6].timeRemaining} title={healthList[6].name} Icon={SiOxygen} value={healthList[6].progressPercent} unit="%" progress={healthList[6].progressPercent} />
+          <ImprovedCard percentageChange={healthList[7].progressPercent} timeRemaining={healthList[7].timeRemaining} title={healthList[7].name} Icon={SiOxygen} value={healthList[7].progressPercent} unit="%" progress={healthList[7].progressPercent} />
+          <ImprovedCard percentageChange={healthList[8].progressPercent} timeRemaining={healthList[8].timeRemaining} title={healthList[8].name} Icon={SiOxygen} value={healthList[8].progressPercent} unit="%" progress={healthList[8].progressPercent} />
+          <ImprovedCard percentageChange={healthList[9].progressPercent} timeRemaining={healthList[9].timeRemaining} title={healthList[9].name} Icon={SiOxygen} value={healthList[9].progressPercent} unit="%" progress={healthList[9].progressPercent} />
+          
+        </div>
+
+        <div className='ImprovedCardContainer'>
+          <ImprovedCard percentageChange={healthList[10].progressPercent} timeRemaining={healthList[10].timeRemaining} title={healthList[10].name} Icon={SiOxygen} value={healthList[10].progressPercent} unit="%" progress={healthList[10].progressPercent} />
+          <ImprovedCard percentageChange={healthList[11].progressPercent} timeRemaining={healthList[11].timeRemaining} title={healthList[11].name} Icon={SiOxygen} value={healthList[11].progressPercent} unit="%" progress={healthList[11].progressPercent} />
+          <ImprovedCard percentageChange={healthList[12].progressPercent} timeRemaining={healthList[12].timeRemaining} title={healthList[12].name} Icon={SiOxygen} value={healthList[12].progressPercent} unit="%" progress={healthList[12].progressPercent} />
+          <ImprovedCard percentageChange={healthList[13].progressPercent} timeRemaining={healthList[13].timeRemaining} title={healthList[13].name} Icon={SiOxygen} value={healthList[13].progressPercent} unit="%" progress={healthList[13].progressPercent} />
+        </div>
+      </div>
+      <div id='savedMoney'>
+        <SavingsCardWithDetail></SavingsCardWithDetail>
       </div>
     </>
   )
