@@ -26,8 +26,8 @@ function PrivateRoute({ children }) {
   if (isAuthenticated === null) {
     
 
-  return 
-      <>
+  return (
+<>
       <div style={{
       height: '100vh',
       width: '100vw',
@@ -59,6 +59,8 @@ function PrivateRoute({ children }) {
       
     </div>
       </>
+  )
+      
     
   }
 

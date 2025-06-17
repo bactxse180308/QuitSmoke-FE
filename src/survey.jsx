@@ -142,7 +142,7 @@ function Survey() {
                                 <input className="input-register" type="text" name="username" placeholder="Tên người dùng" required onChange={handleRegisterChange} /><br />
                                 <input className="input-register" type="email" name="email" placeholder="Email" required onChange={handleRegisterChange} /><br />
                                 <input className="input-register" type="password" name="password" placeholder="Mật khẩu" required onChange={handleRegisterChange} /><br />
-                                <input className="input-register" type="repeatpassword" name="repeatpassword" placeholder="Nhập lại mật khẩu" required onChange={handleRegisterChange} /><br />
+                                <input className="input-register" type="password" name="repeatpassword" placeholder="Nhập lại mật khẩu" required onChange={handleRegisterChange} /><br />
                                 <button style={{background:'#16a34a', padding:'10px 30px', margin:'10px auto'}} type="submit">Đăng ký</button>
                                 {errorMessage && (
                                     <p style={{ color: "red", fontSize: "0.9rem" }}>{errorMessage}</p>

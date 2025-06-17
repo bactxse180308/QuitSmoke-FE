@@ -1,32 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavBar } from "./dashBoard";
-import "./App.css";
 import { Footer } from "./homePage";
-
-
-const initialCoaches = [
-  {
-    id: 1,
-    name: "Nguyễn Văn A",
-    email: "nguyenvana@example.com",
-    avatar: 'https://i.pravatar.cc/150?u=nguyenvana',
-    bookedSlots: [2, 5],
-  },
-  {
-    id: 2,
-    name: "Trần van B",
-    email: "tranthib@example.com",
-    avatar: 'https://i.pravatar.cc/150?u=tranvanB',
-    bookedSlots: [3, 8],
-  },
-  {
-    id: 3,
-    name: "Trần văn c",
-    email: "tranvanc@example.com",
-    avatar: 'https://i.pravatar.cc/150?u=tranvanc',
-    bookedSlots: [3, 8],
-  },
-];
+import "./App.css";
+import { getUserId } from "./dashBoard";
 
 const symptoms = [
   "Thèm thuốc nhiều",
@@ -36,180 +12,195 @@ const symptoms = [
   "Khác",
 ];
 
-function Coach() {
-  const [coaches, setCoaches] = useState(initialCoaches); // State cho coaches
-  const [selected, setSelected] = useState({
-    coach: null,
-    symptom: "",
-    slot: null,
+function formatDateWithWeekday(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("vi-VN", {
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
   });
+}
+
+function Coach() {
+  const [coaches, setCoaches] = useState([]);
+  const [selected, setSelected] = useState({ coach: null, symptom: "", slot: null });
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [confirmedSlot, setConfirmedSlot] = useState(null); // Lưu slot vừa xác nhận
+  const [confirmedSlot, setConfirmedSlot] = useState(null);
+  const userId = getUserId();
+  
+
+  useEffect(() => {
+    const fetchCoaches = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/schedule/get-schedule");
+        if (!response.ok) throw new Error("Lỗi khi lấy danh sách coach");
+        const data = await response.json();
+        setCoaches(data);
+      } catch (error) {
+        console.error("Fetch coaches error:", error);
+      }
+    };
+    fetchCoaches();
+  }, []);
 
   const openModal = (coach) => setSelected({ coach, symptom: "", slot: null });
+  const closeModal = () => setSelected({ coach: null, symptom: "", slot: null });
 
-  const closeModal = () =>
-    setSelected({ coach: null, symptom: "", slot: null });
-
-  const confirm = () => {
+  const confirm = async () => {
     if (!selected.symptom || selected.slot === null) {
       setShowConfirmation(true);
       return;
     }
-    // Cập nhật bookedSlots cho coach
-    setCoaches((prevCoaches) =>
-      prevCoaches.map((coach) =>
-        coach.id === selected.coach.id
-          ? { ...coach, bookedSlots: [...coach.bookedSlots, selected.slot] }
-          : coach
-      )
-    );
-    setConfirmedSlot({ coachId: selected.coach.id, slot: selected.slot }); // Lưu slot vừa xác nhận
-    setShowConfirmation(true);
+
+    try {
+      const res = await fetch("http://localhost:8080/api/bookings/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: userId , scheduleId: selected.slot, note: selected.symptom }),
+      });
+      console.error("userId:", userId, "slot:", selected.slot, "note", selected.symptom)
+      if (!res.ok) throw new Error("Lỗi khi booking");
+
+      setConfirmedSlot({ coachId: selected.coach.id, slot: selected.slot });
+
+      const refreshed = await fetch("http://localhost:8080/api/schedule/get-schedule");
+      const refreshedData = await refreshed.json();
+      setCoaches(refreshedData);
+
+      setShowConfirmation(true);
+    } catch (err) {
+      console.error("Booking error:", err);
+       console.error("userId:", userId, "slot:", selected.slot, "note", selected.symptom)
+    }
   };
 
   const closeConfirmation = () => {
     setShowConfirmation(false);
-    if (selected.symptom && selected.slot !== null) {
-      closeModal();
-    }
+    if (selected.symptom && selected.slot !== null) closeModal();
   };
 
+  const [userBookings, setUserBookings] = useState([]);
+
+useEffect(() => {
+  const fetchBookings = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/bookings/user/${userId}`);
+      const data = await res.json();
+      setUserBookings(data);
+    } catch (err) {
+      console.error("Lỗi khi lấy lịch người dùng:", err);
+    }
+  };
+  fetchBookings();
+}, []);
   return (
-    <>
-      <div className="coach-page">
-        <NavBar />
-        <div className="coach-container">
-          <h1 className="coach-title">Chuyên gia</h1>
-          {coaches.map((c) => (
-            <div key={c.id} className="coach-card">
-              <div className="coach-details">
-                <img src={c.avatar} alt={c.name} className="coach-avatar" />
-                <div className="coach-text">
-                  <h2 className="coach-name">{c.name}</h2>
-                  <p className="coach-email">{c.email}</p>
-                </div>
+    <div className="coach-page">
+      <NavBar />
+      <h2 className="section-title">Lịch của bạn</h2>
+<div className="user-schedule">
+  {userBookings.length === 0 ? (
+    <p>Chưa có lịch hẹn nào.</p>
+  ) : (
+    userBookings.map((b) => (
+      <div key={b.bookingId} className="user-booking-card">
+        <div className="booking-info">
+          <p><strong>Chuyên gia:</strong> {b.coachName}</p>
+          <p><strong>Thời gian:</strong> {formatDateWithWeekday(b.date)} {b.slotLabel === "1" ? "Sáng" : "Chiều"}</p>
+        </div>
+        <div className="booking-actions">
+          <a href={b.meetUrl} target="_blank" rel="noreferrer" className="btn-meet">Vào buổi gặp</a>
+          <button onClick={() => cancelBooking(b.bookingId)} className="btn-cancel">Hủy lịch</button>
+        </div>
+      </div>
+    ))
+  )}
+</div>
+      <div className="coach-container">
+        <h1 className="coach-title">Chuyên gia</h1>
+        {coaches.map((c) => (
+          <div key={c.id} className="coach-card">
+            <div className="coach-details">
+              <img src={c.avatar} alt={c.name} className="coach-avatar" />
+              <div className="coach-text">
+                <h2 className="coach-name">{c.name}</h2>
+                <p className="coach-email">{c.email}</p>
               </div>
-              <div className="coach-slot-grid">
-                {Array.from({ length: 14 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`coach-slot ${
-                      confirmedSlot &&
-                      confirmedSlot.coachId === c.id &&
-                      confirmedSlot.slot === i
-                        ? "slot-confirmed"
-                        : c.bookedSlots.includes(i)
-                        ? "slot-booked"
-                        : ""
-                    }`}
+            </div>
+            <div className="coach-slot-grid">
+              {c.schedules.map((s) => (
+                <div
+                  key={s.scheduleId}
+                  className={`coach-slot ${!s.available ? "slot-booked" : confirmedSlot && confirmedSlot.coachId === c.id && confirmedSlot.slot === s.scheduleId ? "slot-confirmed" : ""}`}
+                >
+                  {`${formatDateWithWeekday(s.date)} ${s.slotLabel === "1" ? "Sáng" : "Chiều"}`}
+                </div>
+              ))}
+            </div>
+            <button className="btn-booking" onClick={() => openModal(c)}>Booking</button>
+          </div>
+        ))}
+      </div>
+
+      {selected.coach && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3 className="modal-title">Đặt lịch với {selected.coach.name}</h3>
+            <div className="modal-section">
+              <p className="modal-label">Triệu chứng:</p>
+              <select
+                className="symptom-dropdown"
+                value={selected.symptom}
+                onChange={(e) => setSelected({ ...selected, symptom: e.target.value })}
+              >
+                <option value="">--Chọn triệu chứng--</option>
+                {symptoms.map((s, i) => (
+                  <option key={i} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+            <div className="modal-section">
+              <p className="modal-label">Chọn slot (7 ngày × 2 slot):</p>
+              <div className="slot-grid">
+                {selected.coach.schedules.map((s) => (
+                  <button
+                    key={s.scheduleId}
+                    disabled={!s.available}
+                    onClick={() => setSelected({ ...selected, slot: s.scheduleId })}
+                    className={`slot-button ${!s.available ? "slot-disabled" : ""} ${selected.slot === s.scheduleId ? "slot-active" : ""}`}
+
                   >
-                    {`${
-                      ["T2", "T3", "T4", "T5", "T6", "T7", "CN"][
-                        Math.floor(i / 2)
-                      ]
-                    } ${i % 2 === 0 ? "S" : "C"}`}
-                  </div>
+                    {`${formatDateWithWeekday(s.date)} ${s.slotLabel === "1" ? "Sáng" : "Chiều"}`}
+                  </button>
                 ))}
               </div>
-              <button className="btn-booking" onClick={() => openModal(c)}>
-                Booking
-              </button>
             </div>
-          ))}
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={closeModal}>Hủy</button>
+              <button className="btn-confirm" onClick={confirm}>Xác nhận</button>
+            </div>
+          </div>
         </div>
+      )}
 
-        {selected.coach && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h3 className="modal-title">
-                Đặt lịch với {selected.coach.name}
-              </h3>
-              <div className="modal-section">
-                <p className="modal-label">Triệu chứng:</p>
-                <select
-                  className="symptom-dropdown"
-                  value={selected.symptom}
-                  onChange={(e) =>
-                    setSelected({ ...selected, symptom: e.target.value })
-                  }
-                >
-                  <option value="">--Chọn triệu chứng--</option>
-                  {symptoms.map((s, i) => (
-                    <option key={i} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="modal-section">
-                <p className="modal-label">Chọn slot (7 ngày × 2 slot):</p>
-                <div className="slot-grid">
-                  {Array.from({ length: 14 }).map((_, i) => {
-                    const booked = selected.coach.bookedSlots.includes(i);
-                    const active = selected.slot === i;
-                    return (
-                      <button
-                        key={i}
-                        disabled={booked}
-                        onClick={() => setSelected({ ...selected, slot: i })}
-                        className={`slot-button ${
-                          booked ? "slot-disabled" : active ? "slot-active" : ""
-                        }`}
-                      >
-                        {booked
-                          ? "❌"
-                          : `${
-                              ["T2", "T3", "T4", "T5", "T6", "T7", "CN"][
-                                Math.floor(i / 2)
-                              ]
-                            } ${i % 2 === 0 ? "S" : "C"}`}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="modal-actions">
-                <button className="btn-cancel" onClick={closeModal}>
-                  Hủy
-                </button>
-                <button className="btn-confirm" onClick={confirm}>
-                  Xác nhận
-                </button>
-              </div>
-            </div>
+      {showConfirmation && (
+        <div className="confirmation-overlay">
+          <div className="confirmation-content">
+            <h3 className="confirmation-title">
+              {selected.symptom && selected.slot !== null ? "Xác nhận đặt lịch" : "Lỗi"}
+            </h3>
+            <p className="confirmation-message">
+              {selected.symptom && selected.slot !== null
+                ? `Đã đặt với ${selected.coach.name}\nTriệu chứng: ${selected.symptom}`
+                : "Vui lòng chọn triệu chứng và slot!"}
+            </p>
+            <button className="btn-ok" onClick={closeConfirmation}>OK</button>
           </div>
-        )}
+        </div>
+      )}
 
-        {showConfirmation && (
-          <div className="confirmation-overlay">
-            <div className="confirmation-content">
-              <h3 className="confirmation-title">
-                {selected.symptom && selected.slot !== null
-                  ? "Xác nhận đặt lịch"
-                  : "Lỗi"}
-              </h3>
-              <p className="confirmation-message">
-                {selected.symptom && selected.slot !== null
-                  ? `Đã đặt với ${selected.coach.name}\nTriệu chứng: ${
-                      selected.symptom
-                    }\nSlot: ${
-                      ["T2", "T3", "T4", "T5", "T6", "T7", "CN"][
-                        Math.floor(selected.slot / 2)
-                      ]
-                    } ${selected.slot % 2 === 0 ? "Sáng" : "Chiều"}`
-                  : "Vui lòng chọn triệu chứng và slot!"}
-              </p>
-              <button className="btn-ok" onClick={closeConfirmation}>
-                OK
-              </button>
-            </div>
-          </div>
-        )}
-
-        <Footer />
-      </div>
-    </>
+      <Footer />
+    </div>
   );
 }
 

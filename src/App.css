@@ -19,7 +19,7 @@
   color: black;
   background: #F0FCF5;
   width: 100%;
-  padding: 50px 0;
+  padding: 50px 0 20px 0;
   text-align: center;
 }
 
@@ -351,6 +351,7 @@ Footer {
   border-radius: 4px;
   background-color: #ffffff; /* Mặc định: trắng */
   color: #000000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2); /* Đổ bóng nhẹ */
 }
 .slot-booked {
   background-color: #ef4444; /* Đã đặt: đỏ */
@@ -434,15 +435,11 @@ Footer {
   background: #f3f4f6;
   cursor: pointer;
 }
-.slot-button.slot-active {
+.slot-button .slot-active {
   background-color: #2563eb;
   color: white;
 }
-.slot-button.slot-disabled {
-  background-color: #d1d5db;
-  color: #6b7280;
-  cursor: not-allowed;
-}
+
 .modal-actions {
   text-align: right;
   margin-top: 16px;
@@ -579,11 +576,15 @@ Footer {
 }
 
 .slot-button.slot-active {
-  color: #ffffff; /* Giữ màu trắng khi được chọn để dễ đọc */
+  color: white  ; /* Giữ màu trắng khi được chọn để dễ đọc */
+  border: 1px solid green; /* Thêm viền xanh để dễ nhận diện */
+  background-color: #16a34a; /* Nền xám nhạt cho slot đã chọn */
 }
 
 .slot-button.slot-disabled {
-  color: #6b7280; /* Giữ màu xám cho slot bị vô hiệu hóa để dễ phân biệt */
+  color: white; /* Giữ màu xám cho slot bị vô hiệu hóa để dễ phân biệt */
+  cursor: not-allowed; /* Hiển thị con trỏ không cho phép */
+  background-color: red; /* Nền xám nhạt cho slot bị vô hiệu hóa */
 }
 
 .btn-cancel {

@@ -21,10 +21,26 @@ const CloseIcon = () => (
 
 
 function Diary() {
+
+  const getLocalISODateTime = () => {
+  const now = new Date();
+  const pad = (n) => n.toString().padStart(2, '0');
+
+  const year = now.getFullYear();
+  const month = pad(now.getMonth() + 1);
+  const day = pad(now.getDate());
+  const hour = pad(now.getHours());
+  const minute = pad(now.getMinutes());
+  const second = pad(now.getSeconds());
+
+  return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+};
+
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [diaryEntries, setDiaryEntries] = useState([]);
   const [formData, setFormData] = useState({
-    logDate: new Date().toISOString().slice(0, 19), // "YYYY-MM-DDTHH:mm"
+    logDate: getLocalISODateTime(), // "YYYY-MM-DDTHH:mm"
     smokedToday: "false",
     cravingLevel: 1,
     stressLevel: 1,
@@ -32,7 +48,7 @@ function Diary() {
     cigarettesSmoked: 0,
     spentMoneyOnCigarettes: 0
   });
-
+  console.log(formData);
   const [userId, setUserId] = useState("");
 
   useEffect(() => {
@@ -98,8 +114,9 @@ function Diary() {
         },
         body: JSON.stringify(dataToSend),
       });
-
+      console.log(response);
       if (!response.ok) {
+        alert("Lỗi khi gửi nhật ký.", response.text());
         throw new Error("Lỗi khi gửi nhật ký");
       }
 
@@ -113,7 +130,7 @@ function Diary() {
 
 
       setFormData({
-        logDate: new Date().toISOString().slice(0, 19),
+        logDate: getLocalISODateTime(),
         smokedToday: "false",
         cravingLevel: 1,
         stressLevel: 1,

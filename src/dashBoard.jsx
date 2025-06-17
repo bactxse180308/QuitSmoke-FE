@@ -333,6 +333,33 @@ function NavBar() {
   );
 }
 
+export function getUserId() {
+  const [userId, setUserId] = useState("");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/auth/get-session-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include"
+        });
+
+        if (!res.ok) throw new Error("Không tìm thấy user");
+
+        const userData = await res.json();
+        setUserId(userData.userId);
+      } catch (error) {
+        console.error("Lỗi khi lấy user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  return userId;
+}
+
 // ... Các phần code khác của Dashboard.jsx giữ nguyên ...
 function ImprovedCard(props) {
   const isPositive = props.percentageChange >= 0;
@@ -403,17 +430,34 @@ function improvedList() {
     fetchProgress();
   }, [userId]);
 
-  console.log(healthList);
 
   return { healthList, loading };
 }
 
 
-function SavingsCardWithDetail(props) {
+function SavingsCardWithDetail() {
   const [showModal, setShowModal] = useState(false);
 
   const handleOpen = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
+
+  const userId = getUserId();
+
+  const [savedMoney, setSavedMoney] = useState(0);
+  
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/quit-plan/${userId}/savings`);
+      const savedMoney = await response.json();
+      setSavedMoney(savedMoney);
+    } catch (error) {
+      console.error("Lỗi khi fetch:", error);
+    }
+  };
+
+  fetchData();
+}, [userId]);
 
   return (
     <>
@@ -423,12 +467,12 @@ function SavingsCardWithDetail(props) {
         <div className="savings-content">
           <div className="savings-left">
             <p className="label">Số tiền đã tiết kiệm</p>
-            <p className="value green">{props.savedMoney} đ</p>
+            <p className="value green">{savedMoney} đ</p>
             <button className="detail-button" onClick={handleOpen}>Xem chi tiết</button>
           </div>
           <div className="savings-right">
             <p className="label">Tiết kiệm trong 1 năm</p>
-            <p className="value blue">{props.savedMoneyOneYear} đ</p>
+            <p className="value blue">{savedMoney*365} đ</p>
           </div>
         </div>
       </div>
@@ -444,26 +488,26 @@ function SavingsCardWithDetail(props) {
             <div className="modal-body">
               <div className="modal-left">
                 <p><strong>Số tiền tiết kiệm được</strong></p>
-                <p className="green">{props.savedMoney} đ</p>
+                <p className="green">{savedMoney} đ</p>
 
                 <p>Đã tiêu cho thuốc lá</p>
                 <p className="red">0 đ</p>
 
                 <p>Đã tiêu cho liệu pháp thay thế Nicotine</p>
-                <p className="orange">{props.moneyForNRT} đ</p>
+                {/* <p className="orange">{moneyForNRT} đ</p> */}
               </div>
               <div className="modal-right">
                 <p><strong>Mỗi ngày</strong></p>
-                <p>{props.savedMoneyPerDay} đ</p>
+                <p>{savedMoney} đ</p>
 
                 <p><strong>Mỗi tuần</strong></p>
-                <p>{props.savedMoneyPerWeek} đ</p>
+                <p>{savedMoney*7} đ</p>
 
                 <p><strong>Mỗi tháng</strong></p>
-                <p>{props.savedMoneyPerMonth} đ</p>
+                <p>{savedMoney*30} đ</p>
 
                 <p><strong>Mỗi năm</strong></p>
-                <p>{props.savedMoneyPerYear} đ</p>
+                <p>{savedMoney*365} đ</p>
               </div>
             </div>
           </div>
