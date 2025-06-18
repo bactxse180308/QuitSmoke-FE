@@ -28,7 +28,7 @@ function Coach() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmedSlot, setConfirmedSlot] = useState(null);
   const userId = getUserId();
-  
+
 
   useEffect(() => {
     const fetchCoaches = async () => {
@@ -57,7 +57,7 @@ function Coach() {
       const res = await fetch("http://localhost:8080/api/bookings/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: userId , scheduleId: selected.slot, note: selected.symptom }),
+        body: JSON.stringify({ userId: userId, scheduleId: selected.slot, note: selected.symptom }),
       });
       console.error("userId:", userId, "slot:", selected.slot, "note", selected.symptom)
       if (!res.ok) throw new Error("Lỗi khi booking");
@@ -67,12 +67,14 @@ function Coach() {
       const refreshed = await fetch("http://localhost:8080/api/schedule/get-schedule");
       const refreshedData = await refreshed.json();
       setCoaches(refreshedData);
-
+      await fetchBookings();
       setShowConfirmation(true);
     } catch (err) {
       console.error("Booking error:", err);
-       console.error("userId:", userId, "slot:", selected.slot, "note", selected.symptom)
+      console.error("userId:", userId, "slot:", selected.slot, "note", selected.symptom)
     }
+
+
   };
 
   const closeConfirmation = () => {
@@ -82,40 +84,69 @@ function Coach() {
 
   const [userBookings, setUserBookings] = useState([]);
 
-useEffect(() => {
   const fetchBookings = async () => {
     try {
-      const res = await fetch(`http://localhost:8080/api/bookings/user/${userId}`);
+      const res = await fetch(`http://localhost:8080/api/bookings/get-booking/${userId}`);
       const data = await res.json();
       setUserBookings(data);
     } catch (err) {
       console.error("Lỗi khi lấy lịch người dùng:", err);
     }
   };
-  fetchBookings();
-}, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchBookings();
+    }
+  }, [userId]);
+
+  const cancelBooking = async (bookingId) => {
+  if (!window.confirm("Bạn có chắc muốn hủy lịch hẹn này?")) return;
+
+  try {
+    const res = await fetch(`http://localhost:8080/api/bookings/cancel/${bookingId}`, {
+      method: "DELETE", // hoặc "POST" tùy backend
+    });
+
+    if (!res.ok) throw new Error("Hủy lịch thất bại");
+
+    // Tải lại danh sách lịch hẹn sau khi hủy
+    await fetchBookings();
+  } catch (error) {
+    console.error("Lỗi khi hủy lịch:", error);
+    alert("Hủy lịch không thành công. Vui lòng thử lại.");
+  }
+};
+
+
   return (
     <div className="coach-page">
       <NavBar />
       <h2 className="section-title">Lịch của bạn</h2>
-<div className="user-schedule">
-  {userBookings.length === 0 ? (
-    <p>Chưa có lịch hẹn nào.</p>
-  ) : (
-    userBookings.map((b) => (
-      <div key={b.bookingId} className="user-booking-card">
-        <div className="booking-info">
-          <p><strong>Chuyên gia:</strong> {b.coachName}</p>
-          <p><strong>Thời gian:</strong> {formatDateWithWeekday(b.date)} {b.slotLabel === "1" ? "Sáng" : "Chiều"}</p>
-        </div>
-        <div className="booking-actions">
-          <a href={b.meetUrl} target="_blank" rel="noreferrer" className="btn-meet">Vào buổi gặp</a>
-          <button onClick={() => cancelBooking(b.bookingId)} className="btn-cancel">Hủy lịch</button>
-        </div>
+      <div className="user-schedule">
+        {userBookings.length === 0 ? (
+          <p>Chưa có lịch hẹn nào.</p>
+        ) : (
+          userBookings.map((b, index) => (
+            <div key={index} className="user-booking-card">
+              <div className="booking-info">
+                <p><strong>Thời gian:</strong> {formatDateWithWeekday(b.bookingDate)} {b.startTime} - {b.endTime}</p>
+                <p><strong>Tên chuyên gia:</strong> {b.coachName}</p>
+                <p><strong>Trạng thái:</strong> {b.status}</p>
+                <p><strong>Ghi chú:</strong> {b.note}</p>
+              </div>
+              <div className="booking-actions">
+                <a href={b.meetingLink} target="_blank" rel="noreferrer" className="btn-meet">
+                  Vào buổi gặp
+                </a>
+                <button onClick={() => cancelBooking?.(b.bookingId)} className="btn-cancel">
+                  Hủy lịch
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
-    ))
-  )}
-</div>
       <div className="coach-container">
         <h1 className="coach-title">Chuyên gia</h1>
         {coaches.map((c) => (
