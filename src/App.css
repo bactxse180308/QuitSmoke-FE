@@ -237,6 +237,9 @@ Footer {
   width: 100%;
   padding: 20px 0;
   text-align: center;
+  bottom: 0; 
+  left: 0;
+  position: fixed;
 }
 
 .hero-section {
@@ -376,101 +379,319 @@ Footer {
 
 
 /* ---- Khu vực Danh sách chuyên gia ---- */
-.coach-container {
-  margin-top: 24px;
+.coach-page-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding: 40px;
+  box-sizing: border-box;
 }
 
-.coach-card {
+.coach-page-content {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.page-header p {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+}
+
+/* --- HỆ THỐNG TAB --- */
+.tab-navigation {
   display: flex;
-  align-items: center; /* Canh giữa các item theo chiều dọc */
-  gap: 24px; /* Tăng khoảng cách */
+  background-color: #e9ecef;
+  border-radius: 8px;
+  padding: 5px;
+  margin-bottom: 40px;
+  border: 1px solid #dee2e6;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 12px 20px;
+  font-weight: 600;
+  color: #495057;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.tab-item.active {
+  background-color: #ffffff;
+  color: #0d6efd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* --- TAB DANH SÁCH CHUYÊN GIA --- */
+.coach-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.coach-card-detailed {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  padding: 20px;
-  margin-bottom: 20px;
-  text-align: left;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  padding: 24px;
+  border: 1px solid #e9ecef;
 }
 
-.coach-details {
+.coach-main-info {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  min-width: 250px; /* Đảm bảo có chiều rộng tối thiểu */
+  align-items: flex-start;
+  gap: 20px;
 }
 
 .coach-avatar {
-  width: 64px; /* Giảm kích thước một chút */
-  height: 64px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   object-fit: cover;
+  background-color: #e9ecef; /* Màu nền dự phòng */
 }
 
-.coach-text {
+
+.coach-header {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Bắt buộc để trục dọc là trục chính */
+  
+  gap: 1px;
+  align-items: flex-start; 
+  
 }
 
 .coach-name {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 4px 0;
-}
-
-.coach-email {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #343a40;
   margin: 0;
 }
 
-.coach-slot-grid {
-  flex: 1; /* Cho phép nó chiếm không gian còn lại */
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); /* Responsive hơn */
-  gap: 8px;
+.coach-specialty {
+  background-color: #e7f5ff;
+  color: #1c7ed6;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-left: 10px;
 }
 
+.coach-email {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 8px;
+  margin: 0;
+}
+
+
+
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.status-available {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-busy {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.coach-availability-section {
+  display: flex;
+  align-items: flex-start; /* Căn nhãn và lưới theo đỉnh */
+  gap: 16px; /* Khoảng cách giữa nhãn và lưới */
+  margin-bottom: 20px; /* Khoảng cách tới nút Booking bên dưới */
+}
+
+/* Style cho nhãn "Khung giờ có sẵn:" */
+.coach-availability-section {
+  display: flex;
+  align-items: flex-start; /* Căn nhãn và lưới theo đỉnh */
+  gap: 16px; /* Khoảng cách giữa nhãn và lưới */
+  margin-bottom: 20px; /* Khoảng cách tới nút Booking bên dưới */
+}
+
+/* Style cho nhãn "Khung giờ có sẵn:" */
+.availability-label {
+  font-size: 1rem;
+  color: #495057;
+  font-weight: 600;
+  white-space: nowrap; /* Đảm bảo không bị xuống dòng */
+  padding-top: 10px; /* Căn chỉnh với hàng đầu tiên của grid */
+}
+
+/* Container cho lưới các slot */
+.coach-slot-grid {
+  flex: 1; /* Cho phép lưới chiếm hết không gian còn lại */
+  display: grid;
+  
+  /* Quan trọng: Tạo 5 cột có chiều rộng bằng nhau */
+  grid-template-columns: repeat(5, 1fr); 
+  
+  gap: 8px; /* Khoảng cách giữa các slot */
+}
+
+/* Style cho từng ô slot - SỬ DỤNG CLASS ĐÚNG */
 .coach-slot {
-  font-size: 12px;
+  font-size: 14px;
   text-align: center;
-  padding: 6px;
-  border-radius: 6px;
-  background-color: #f3f4f6; /* Nền xám mặc định cho slot trống */
+  padding: 8px;
+  border-radius: 8px;
+  background-color: #f1f3f5;
   color: #374151;
-border: 1px solid #e5e7eb;
+  border: 1px solid #dee2e6;
+  line-height: 1.5;
+
+  /* Thêm để căn giữa nội dung trong ô một cách hoàn hảo */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 50px; /* Đảm bảo các ô có chiều cao tối thiểu */
 }
 
 .coach-slot.slot-booked {
-  background-color: #fee2e2;
-  color: #b91c1c;
-  border-color: #fecaca;
+  background-color: #e9ecef;
+  color: #adb5bd;
   text-decoration: line-through;
+  cursor: not-allowed;
 }
 
 .coach-slot.slot-confirmed {
   background-color: #dcfce7;
   color: #166534;
-  border-color: #86efac;
+  border: 2px solid #28a745;
   font-weight: bold;
 }
 
+
+.available-slots {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.slot-tag {
+  background-color: #f1f3f5;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.coach-actions {
+  margin-top: 16px;
+  border-top: 1px solid #e9ecef;
+  padding-top: 16px;
+}
+
 .btn-booking {
-  align-self: center;
-  background-color: #16a34a; /* Đổi sang màu xanh lá cây chủ đạo */
+  width: 100%;
+  background-color: #212529;
   color: white;
-  padding: 10px 20px; /* Tăng padding */
+  padding: 12px;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  white-space: nowrap; /* Tránh vỡ chữ */
 }
 
-.btn-booking:hover {
-  background-color: #15803d;
+.btn-booking:disabled {
+  background-color: #adb5bd;
+  cursor: not-allowed;
 }
 
+
+/* --- TAB LỊCH SỬ BOOKING --- */
+.booking-history-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.booking-history-header {
+  text-align: center;
+  color: #495057;
+  margin-bottom: 20px;
+}
+
+.booking-history-header h2 {
+    margin-bottom: 4px;
+}
+
+.booking-card-simple {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e9ecef;
+}
+
+.booking-details h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+
+.booking-meta {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.booking-note {
+  font-style: italic;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.booking-status {
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.status-completed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-upcoming {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
 /* ---- CSS cho Modal (giữ nguyên và bổ sung) ---- */
 .modal-overlay {
   position: fixed;
@@ -497,6 +718,7 @@ border: 1px solid #e5e7eb;
 }
 .modal-section {
   margin-bottom: 20px;
+  
 }
 .modal-label {
   font-weight: 600;
@@ -509,6 +731,7 @@ border: 1px solid #e5e7eb;
   border-radius: 6px;
   border: 1px solid #ccc;
   background: #f9fafb;
+  color: #000000;
   font-size: 15px;
   cursor: pointer;
 }
