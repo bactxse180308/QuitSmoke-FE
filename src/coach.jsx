@@ -128,8 +128,10 @@ function Coach() {
 
 
   return (
-    <div className="coach-page">
+    <div>
       <NavBar />
+    <div className="coach-page">
+      
       <h2 className="section-title">Lịch của bạn</h2>
 {userBookings.map((b, index) => {
   const meetingStartTime = dayjs(`${b.bookingDate} ${b.startTime}`);
@@ -273,6 +275,7 @@ function Coach() {
       )}
 
       <Footer />
+    </div>
     </div>
   );
 }
