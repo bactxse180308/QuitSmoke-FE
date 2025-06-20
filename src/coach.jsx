@@ -3,6 +3,14 @@ import { NavBar } from "./dashBoard";
 import { Footer } from "./homePage";
 import "./App.css";
 import { getUserId } from "./dashBoard";
+import dayjs from 'dayjs'; // hoặc dùng Date thuần nếu không có dayjs
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const now = dayjs(); // thời gian hiện tại
 
 const symptoms = [
   "Thèm thuốc nhiều",
@@ -101,52 +109,86 @@ function Coach() {
   }, [userId]);
 
   const cancelBooking = async (bookingId) => {
-  if (!window.confirm("Bạn có chắc muốn hủy lịch hẹn này?")) return;
+    if (!window.confirm("Bạn có chắc muốn hủy lịch hẹn này?")) return;
 
-  try {
-    const res = await fetch(`http://localhost:8080/api/bookings/cancel/${bookingId}`, {
-      method: "DELETE", // hoặc "POST" tùy backend
-    });
+    try {
+      const res = await fetch(`http://localhost:8080/api/bookings/cancel/${bookingId}`, {
+        method: "DELETE", // hoặc "POST" tùy backend
+      });
 
-    if (!res.ok) throw new Error("Hủy lịch thất bại");
+      if (!res.ok) throw new Error("Hủy lịch thất bại");
 
-    // Tải lại danh sách lịch hẹn sau khi hủy
-    await fetchBookings();
-  } catch (error) {
-    console.error("Lỗi khi hủy lịch:", error);
-    alert("Hủy lịch không thành công. Vui lòng thử lại.");
-  }
-};
+      // Tải lại danh sách lịch hẹn sau khi hủy
+      await fetchBookings();
+    } catch (error) {
+      console.error("Lỗi khi hủy lịch:", error);
+      alert("Hủy lịch không thành công. Vui lòng thử lại.");
+    }
+  };
 
 
   return (
     <div className="coach-page">
       <NavBar />
       <h2 className="section-title">Lịch của bạn</h2>
-      <div className="user-schedule">
-        {userBookings.length === 0 ? (
-          <p>Chưa có lịch hẹn nào.</p>
+{userBookings.map((b, index) => {
+  const meetingStartTime = dayjs(`${b.bookingDate} ${b.startTime}`);
+  const meetingEndTime = dayjs(`${b.bookingDate} ${b.endTime}`);
+  const now = dayjs();
+
+  let meetingStatusLabel = "";
+  let isJoinEnabled = false;
+
+  if (b.status === "CANCEL") {
+    meetingStatusLabel = "Đã hủy";
+  } else if (b.status === "DONE") {
+    meetingStatusLabel = "Đã hoàn thành";
+  } else if (b.status === "BOOKED") {
+    if (now.isBefore(meetingStartTime)) {
+      meetingStatusLabel = "Chưa tới ngày";
+    } else if (now.isAfter(meetingEndTime)) {
+      meetingStatusLabel = "Đã quá hạn";
+    } else if (now.isAfter(meetingStartTime.subtract(10, 'minute')) && now.isBefore(meetingEndTime)) {
+      meetingStatusLabel = "Vào buổi gặp";
+      isJoinEnabled = true;
+    } else {
+      meetingStatusLabel = "Chưa tới giờ";
+    }
+  } else {
+    meetingStatusLabel = "Không xác định";
+  }
+
+  return (
+    <div key={index} className="user-booking-card">
+      <div className="booking-info">
+        <p><strong>Thời gian:</strong> {formatDateWithWeekday(b.bookingDate)} {b.startTime} - {b.endTime}</p>
+        <p><strong>Tên chuyên gia:</strong> {b.coachName}</p>
+        <p><strong>Trạng thái:</strong> {b.status}</p>
+        <p><strong>Ghi chú:</strong> {b.note}</p>
+      </div>
+      <div className="booking-actions">
+        {isJoinEnabled ? (
+          <a href={b.meetingLink} target="_blank" rel="noreferrer" className="btn-meet">
+            {meetingStatusLabel}
+          </a>
         ) : (
-          userBookings.map((b, index) => (
-            <div key={index} className="user-booking-card">
-              <div className="booking-info">
-                <p><strong>Thời gian:</strong> {formatDateWithWeekday(b.bookingDate)} {b.startTime} - {b.endTime}</p>
-                <p><strong>Tên chuyên gia:</strong> {b.coachName}</p>
-                <p><strong>Trạng thái:</strong> {b.status}</p>
-                <p><strong>Ghi chú:</strong> {b.note}</p>
-              </div>
-              <div className="booking-actions">
-                <a href={b.meetingLink} target="_blank" rel="noreferrer" className="btn-meet">
-                  Vào buổi gặp
-                </a>
-                <button onClick={() => cancelBooking?.(b.bookingId)} className="btn-cancel">
-                  Hủy lịch
-                </button>
-              </div>
-            </div>
-          ))
+          <button disabled className="btn-meet btn-disabled">
+            {meetingStatusLabel}
+          </button>
+        )}
+        {b.status === "BOOKED" && (
+          <button onClick={() => cancelBooking?.(b.bookingId)} className="btn-cancel">
+            Hủy lịch
+          </button>
         )}
       </div>
+    </div>
+  );
+})}
+
+
+
+
       <div className="coach-container">
         <h1 className="coach-title">Chuyên gia</h1>
         {coaches.map((c) => (
