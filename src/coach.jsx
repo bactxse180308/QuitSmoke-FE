@@ -120,8 +120,10 @@ function Coach() {
 
 
   return (
-    <div className="coach-page">
+    <div>
       <NavBar />
+    <div className="coach-page">
+      
       <h2 className="section-title">Lịch của bạn</h2>
       <div className="user-schedule">
         {userBookings.length === 0 ? (
@@ -231,6 +233,7 @@ function Coach() {
       )}
 
       <Footer />
+    </div>
     </div>
   );
 }

@@ -140,7 +140,7 @@ function NavBar() {
       className="nav-bar"
       style={{
         display: 'flex',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
         gap: '20px',
         position: 'relative'

@@ -137,7 +137,7 @@
   margin: 20px 50px;
 }
 .nav-bar {
-  margin: 0 15vw;
+  margin: 0 70px;
 }
 .nav-bar h4 {
   margin: 0 auto;
@@ -292,41 +292,123 @@ Footer {
 }
 
 /* file COACH.jsx */
-.coach-container {
+/* --- file COACH.jsx (FIXED & COMPLETE) --- */
+
+/* ---- Bố cục toàn trang ---- */
+.coach-page {
+  padding: 24px 10vw; /* Đồng bộ padding với các trang khác */
+  background-color: #f9fafb; /* màu nền nhẹ */
+  min-height: 100vh;
 }
-.coach-title {
+
+/* ---- Tiêu đề chung cho các khu vực ---- */
+.section-title {
   font-size: 24px;
-  font-weight: bold;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: left;
   margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
 }
-.coach-card {
+
+/* ---- Khu vực Lịch hẹn của bạn ---- */
+.user-schedule {
+  margin-bottom: 48px; /* Tạo khoảng cách với phần Chuyên gia */
+}
+
+.user-booking-card {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center; /* Canh giữa theo chiều dọc */
+  flex-wrap: wrap; /* Cho phép rớt hàng trên màn hình nhỏ */
+  gap: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 1px solid #e9ecef;
+}
+
+.booking-info {
+  flex: 1;
+  min-width: 300px; /* Đảm bảo đủ không gian */
+  text-align: left;
+}
+
+#root .booking-info p {
+  margin: 4px 0;
+  font-size: 15px;
+  color: #4b5563;
+}
+#root .booking-info p strong {
+  color: #1f2937;
+  min-width: 120px; /* Căn lề cho đẹp */
+  display: inline-block;
+}
+
+.booking-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.btn-meet, .btn-cancel {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  border: none;
+  color: white;
+  transition: opacity 0.2s;
+}
+.btn-meet { background: #3b82f6; }
+.btn-cancel { background: #ef4444; }
+
+.btn-meet:hover, .btn-cancel:hover {
+  opacity: 0.85;
+}
+
+
+/* ---- Khu vực Danh sách chuyên gia ---- */
+.coach-container {
+  margin-top: 24px;
+}
+
+.coach-card {
+  display: flex;
+  align-items: center; /* Canh giữa các item theo chiều dọc */
+  gap: 24px; /* Tăng khoảng cách */
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  padding: 16px 20px;
-  margin-bottom: 16px;
-  font-family: sans-serif;
-  gap: 20px;
-  flex-wrap: wrap;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: left;
 }
+
 .coach-details {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
-  flex: 1;
+  min-width: 250px; /* Đảm bảo có chiều rộng tối thiểu */
 }
+
+.coach-avatar {
+  width: 64px; /* Giảm kích thước một chút */
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .coach-text {
   display: flex;
   flex-direction: column;
-}
-.coach-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover; /* Đảm bảo ảnh không bị méo */
 }
 
 .coach-name {
@@ -334,56 +416,66 @@ Footer {
   font-weight: 600;
   margin: 0 0 4px 0;
 }
+
 .coach-email {
   font-size: 14px;
-  color: #4B5563;
+  color: #6b7280;
   margin: 0;
 }
 
 .coach-slot-grid {
+  flex: 1; /* Cho phép nó chiếm không gian còn lại */
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  flex: 0 0 50%; /* Cố định 50% chiều rộng */
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); /* Responsive hơn */
+  gap: 8px;
 }
+
 .coach-slot {
   font-size: 12px;
   text-align: center;
-  padding: 4px;
-  border-radius: 4px;
-  background-color: #ffffff; /* Mặc định: trắng */
-  color: #000000;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2); /* Đổ bóng nhẹ */
-}
-.slot-booked {
-  background-color: #ef4444; /* Đã đặt: đỏ */
-  color: #ffffff; /* Chữ trắng */
-}
-.slot-confirmed {
-  background-color: #22c55e; /* Vừa booking: xanh lá */
-  color: #ffffff; /* Chữ trắng */
-}
-.slot-available {
-  background-color: #bbf7d0;
-  color: #065f46;
-}
-.btn-booking {
-  align-self: center;
-  background-color: #3b82f6;
-  color: white;
-  padding: 8px 16px;
-  border: none;
+  padding: 6px;
   border-radius: 6px;
-  cursor: pointer;
-}
-.btn-booking:hover {
-  background-color: #2563eb;
+  background-color: #f3f4f6; /* Nền xám mặc định cho slot trống */
+  color: #374151;
+border: 1px solid #e5e7eb;
 }
 
+.coach-slot.slot-booked {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border-color: #fecaca;
+  text-decoration: line-through;
+}
+
+.coach-slot.slot-confirmed {
+  background-color: #dcfce7;
+  color: #166534;
+  border-color: #86efac;
+  font-weight: bold;
+}
+
+.btn-booking {
+  align-self: center;
+  background-color: #16a34a; /* Đổi sang màu xanh lá cây chủ đạo */
+  color: white;
+  padding: 10px 20px; /* Tăng padding */
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap; /* Tránh vỡ chữ */
+}
+
+.btn-booking:hover {
+  background-color: #15803d;
+}
+
+/* ---- CSS cho Modal (giữ nguyên và bổ sung) ---- */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -394,103 +486,144 @@ Footer {
   padding: 24px;
   border-radius: 12px;
   width: 90%;
-  max-width: 600px;
+  max-width: 700px; /* Tăng chiều rộng modal */
+  color: #000000;
+  text-align: left;
 }
 .modal-title {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 16px;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 24px;
 }
 .modal-section {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 .modal-label {
   font-weight: 600;
   margin-bottom: 8px;
+  display: block; /* Đảm bảo label chiếm 1 dòng */
 }
 .symptom-dropdown {
-  width: 100%; /* Chiếm toàn bộ chiều rộng của modal-section */
-  padding: 8px;
-  border-radius: 4px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
   border: 1px solid #ccc;
-  background: #f3f4f6; /* Nền nhẹ tương tự các nút trước */
-  color: #000000; /* Màu chữ đen như yêu cầu trước */
-  font-size: 14px;
+  background: #f9fafb;
+  font-size: 15px;
   cursor: pointer;
-  outline: none; /* Bỏ viền khi focus */
 }
 
-.symptom-dropdown:focus {
-  border-color: #3b82f6; /* Viền xanh dương khi focus */
-  background: #ffffff; /* Nền trắng khi focus */
-}
 .slot-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); /* Responsive hơn */
+  gap: 8px;
 }
 .slot-button {
-  font-size: 12px;
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background: #f3f4f6;
+  font-size: 13px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
   cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
 }
-.slot-button .slot-active {
-  background-color: #2563eb;
+
+.slot-button:hover:not(:disabled) {
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+.slot-button.slot-active {
+  background-color: #16a34a;
   color: white;
+  border-color: #16a34a;
+  font-weight: bold;
+}
+
+.slot-button.slot-disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+  text-decoration: line-through;
+  opacity: 0.7;
 }
 
 .modal-actions {
+  display: flex; /* Dùng flexbox để căn chỉnh */
+  justify-content: flex-end; /* Đẩy nút về bên phải */
+  gap: 12px;
   text-align: right;
-  margin-top: 16px;
-}
-.btn-cancel {
-  padding: 8px 16px;
-  margin-right: 8px;
-  background: none;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.btn-confirm {
-  padding: 8px 16px;
-  background-color: #22c55e;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  margin-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 20px;
 }
 
-.coach-page {
-  min-height: 100vh;
+.btn-cancel {
+  background: #ffffff;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+}
+.btn-cancel:hover {
+  background: #f9fafb;
+}
+
+.btn-confirm {
+  background-color: #16a34a;
+  color: white;
+}
+.btn-confirm:hover {
+  background-color: #15803d;
+}
+
+/* ---- CSS cho Confirmation Pop-up (giữ nguyên) ---- */
+.confirmation-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+.confirmation-content {
+  background: #ffffff;
+  color: #000000;
+width: 90%;
+  max-width: 400px;
+  padding: 24px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-  padding: 24px;
-  box-sizing: border-box;
-  background-color: #f9fafb; /* màu nền nhẹ */
-  
-}
-
-
-#modalContent input {
-  width: 80%;
-  text-align: left;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f3f4f6; /* màu nền nhẹ */
-  border-color: #16A34A; /* màu viền nhẹ */
-  margin-bottom: 10px;
-  color: black;
-}
-
-#modalContent h2 {
+  justify-content: center;
   align-items: center;
-  display: block;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+.confirmation-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+.confirmation-message {
+  font-size: 16px;
+  white-space: pre-line;
+  margin-bottom: 24px;
+}
+.btn-ok {
+  background-color: #22c55e;
+  color: #ffffff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.btn-ok:hover {
+  background-color: #16a34a;
 }
 
 #dashBoard {
@@ -822,6 +955,7 @@ Footer {
 /* --- Article List Page --- */
 .article-list-page {
   padding: 24px 8vw;
+  min-height: 100vh;
   background-color: #f9fafb;
 }
 
