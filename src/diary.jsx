@@ -124,7 +124,6 @@ function Diary() {
       const updated = await fetch(`http://localhost:8080/api/user-daily-logs/get-daily-logs/${userId}`);
       const updatedData = await updated.json();
       setDiaryEntries(updatedData);
-
       // Đóng modal và reset form
       setIsModalOpen(false);
 
