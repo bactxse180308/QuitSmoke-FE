@@ -70,7 +70,7 @@ function Diary() {
           setUserId(userId); // Lưu ID người dùng vào state
           const response = await fetch(`http://localhost:8080/api/user-daily-logs/get-daily-logs/${userId}`);
           if (!response.ok) throw new Error("Lỗi khi tải dữ liệu nhật ký");
-
+          console.log(response);
           const data = await response.json();
           setDiaryEntries(data);
         }
@@ -119,6 +119,7 @@ function Diary() {
         alert("Lỗi khi gửi nhật ký.", response.text());
         throw new Error("Lỗi khi gửi nhật ký");
       }
+      console.log(dataToSend);
 
       // Sau khi gửi thành công, gọi lại GET để cập nhật danh sách
       const updated = await fetch(`http://localhost:8080/api/user-daily-logs/get-daily-logs/${userId}`);
